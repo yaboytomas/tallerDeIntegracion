@@ -2,7 +2,7 @@ import { Router } from 'express';
 import * as adminController from '../controllers/adminController';
 import * as adminUserController from '../controllers/adminUserController';
 import { authenticate, requireAdmin } from '../middleware/auth';
-import { upload } from '../services/fileUpload';
+import { uploadProduct, uploadCategory, uploadBanner } from '../services/cloudinaryUpload';
 
 const router = Router();
 
@@ -21,20 +21,20 @@ router.delete('/users/:id', adminUserController.deleteUser);
 
 // Products
 router.get('/products', adminController.getAdminProducts);
-router.post('/products', upload.array('images', 10), adminController.createProduct);
-router.put('/products/:id', upload.array('images', 10), adminController.updateProduct);
+router.post('/products', uploadProduct.array('images', 10), adminController.createProduct);
+router.put('/products/:id', uploadProduct.array('images', 10), adminController.updateProduct);
 router.delete('/products/:id', adminController.deleteProduct);
 
 // Categories
 router.get('/categories', adminController.getAdminCategories);
-router.post('/categories', upload.single('image'), adminController.createCategory);
-router.put('/categories/:id', upload.single('image'), adminController.updateCategory);
+router.post('/categories', uploadCategory.single('image'), adminController.createCategory);
+router.put('/categories/:id', uploadCategory.single('image'), adminController.updateCategory);
 router.delete('/categories/:id', adminController.deleteCategory);
 
 // Banners
 router.get('/banners', adminController.getBanners);
-router.post('/banners', upload.single('image'), adminController.createBanner);
-router.put('/banners/:id', upload.single('image'), adminController.updateBanner);
+router.post('/banners', uploadBanner.single('image'), adminController.createBanner);
+router.put('/banners/:id', uploadBanner.single('image'), adminController.updateBanner);
 router.delete('/banners/:id', adminController.deleteBanner);
 
 // Content Pages

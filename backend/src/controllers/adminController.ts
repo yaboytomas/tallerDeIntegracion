@@ -9,7 +9,7 @@ import { AuthRequest } from '../types';
 import { CustomError } from '../middleware/errorHandler';
 import { generateUniqueSlug } from '../utils/slug';
 import { generateSKU } from '../utils/sku';
-import { getFileURL, deleteFile } from '../services/fileUpload';
+import { deleteCloudinaryImage } from '../services/cloudinaryUpload';
 import { createAuditLog } from '../middleware/auditLog';
 
 // Dashboard stats
@@ -121,9 +121,9 @@ export async function createProduct(req: AuthRequest, res: Response): Promise<vo
       return !exists;
     });
 
-    // Handle image uploads
+    // Handle image uploads (Cloudinary provides full URL in file.path)
     const images = req.files
-      ? (req.files as Express.Multer.File[]).map((file) => getFileURL(file.filename, 'admin'))
+      ? (req.files as Express.Multer.File[]).map((file) => file.path)
       : [];
 
     const product = await Product.create({
@@ -184,11 +184,9 @@ export async function updateProduct(req: AuthRequest, res: Response): Promise<vo
       throw new CustomError('Producto no encontrado', 404);
     }
 
-    // Handle new images
+    // Handle new images (Cloudinary provides full URL in file.path)
     if (req.files && Array.isArray(req.files)) {
-      const newImages = (req.files as Express.Multer.File[]).map((file) =>
-        getFileURL(file.filename, 'admin')
-      );
+      const newImages = (req.files as Express.Multer.File[]).map((file) => file.path);
       updateData.images = [...(product.images || []), ...newImages];
     }
 
@@ -232,12 +230,9 @@ export async function deleteProduct(req: AuthRequest, res: Response): Promise<vo
     }
 
     if (hardDelete === 'true') {
-      // Delete images
-      if (product.images) {
-        product.images.forEach((image) => {
-          const filename = image.split('/').pop();
-          if (filename) deleteFile(filename, 'admin');
-        });
+      // Delete images from Cloudinary
+      if (product.images && product.images.length > 0) {
+        await Promise.all(product.images.map((image) => deleteCloudinaryImage(image)));
       }
 
       // Delete variants
@@ -286,7 +281,7 @@ export async function createCategory(req: AuthRequest, res: Response): Promise<v
       return !exists;
     });
 
-    const image = req.file ? getFileURL(req.file.filename, 'admin') : undefined;
+    const image = req.file ? req.file.path : undefined;
 
     const category = await Category.create({
       name,
@@ -326,7 +321,7 @@ export async function updateCategory(req: AuthRequest, res: Response): Promise<v
     }
 
     if (req.file) {
-      updateData.image = getFileURL(req.file.filename, 'admin');
+      updateData.image = req.file.path;
     }
 
     const category = await Category.findByIdAndUpdate(id, updateData, {
@@ -406,7 +401,7 @@ export async function createBanner(req: AuthRequest, res: Response): Promise<voi
       subtitle,
       ctaText,
       ctaLink,
-      image: getFileURL(req.file.filename, 'admin'),
+      image: req.file.path,
       active,
       order: parseInt(order, 10),
     });
@@ -432,7 +427,7 @@ export async function updateBanner(req: AuthRequest, res: Response): Promise<voi
     const updateData = req.body;
 
     if (req.file) {
-      updateData.image = getFileURL(req.file.filename, 'admin');
+      updateData.image = req.file.path;
     }
 
     const banner = await HomeBanner.findByIdAndUpdate(id, updateData, {
@@ -465,8 +460,7 @@ export async function deleteBanner(req: AuthRequest, res: Response): Promise<voi
 
     const banner = await HomeBanner.findById(id);
     if (banner && banner.image) {
-      const filename = banner.image.split('/').pop();
-      if (filename) deleteFile(filename, 'admin');
+      await deleteCloudinaryImage(banner.image);
     }
 
     await HomeBanner.findByIdAndDelete(id);
