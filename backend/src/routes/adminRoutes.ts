@@ -1,0 +1,47 @@
+import { Router } from 'express';
+import * as adminController from '../controllers/adminController';
+import * as adminUserController from '../controllers/adminUserController';
+import { authenticate, requireAdmin } from '../middleware/auth';
+import { upload } from '../services/fileUpload';
+
+const router = Router();
+
+// All admin routes require authentication and admin role
+router.use(authenticate);
+router.use(requireAdmin);
+
+// Dashboard
+router.get('/dashboard', adminController.getDashboardStats);
+
+// User Management
+router.get('/users', adminUserController.getAllUsers);
+router.post('/users/create-admin', adminUserController.createAdminUser);
+router.put('/users/:id/role', adminUserController.updateUserRole);
+router.delete('/users/:id', adminUserController.deleteUser);
+
+// Products
+router.get('/products', adminController.getAdminProducts);
+router.post('/products', upload.array('images', 10), adminController.createProduct);
+router.put('/products/:id', upload.array('images', 10), adminController.updateProduct);
+router.delete('/products/:id', adminController.deleteProduct);
+
+// Categories
+router.get('/categories', adminController.getAdminCategories);
+router.post('/categories', upload.single('image'), adminController.createCategory);
+router.put('/categories/:id', upload.single('image'), adminController.updateCategory);
+router.delete('/categories/:id', adminController.deleteCategory);
+
+// Banners
+router.get('/banners', adminController.getBanners);
+router.post('/banners', upload.single('image'), adminController.createBanner);
+router.put('/banners/:id', upload.single('image'), adminController.updateBanner);
+router.delete('/banners/:id', adminController.deleteBanner);
+
+// Content Pages
+router.get('/content', adminController.getContentPages);
+router.get('/content/:slug', adminController.getContentPage);
+router.post('/content', adminController.createOrUpdateContentPage);
+router.put('/content/:slug', adminController.createOrUpdateContentPage);
+
+export default router;
+
