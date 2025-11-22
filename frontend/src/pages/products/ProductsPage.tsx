@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useSearchParams, Link } from "react-router-dom";
 import { api } from "../../services/api";
 import { useCart } from "../../context/CartContext";
+import { getImageUrl } from "../../utils/imageUrl";
 import { formatCLP } from "../../utils/currency";
 import type { Product, Category } from "../../types";
 
@@ -161,7 +162,7 @@ export function ProductsPage() {
                       {product.images && product.images.length > 0 && (
                         <div className="aspect-square overflow-hidden">
                           <img
-                            src={`http://localhost:5000${product.images[0]}`}
+                            src={getImageUrl(product.images[0])}
                             alt={product.name}
                             className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
                           />

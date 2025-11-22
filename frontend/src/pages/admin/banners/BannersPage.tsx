@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { api } from '../../../services/api';
 import { useAuth } from '../../../context/AuthContext';
+import { getImageUrl } from '../../../utils/imageUrl';
 import { BannerFormModal } from './BannerFormModal';
 import type { HomeBanner } from '../../../types';
 
@@ -86,7 +87,7 @@ export function BannersPage() {
           {banners.map((banner) => (
             <div key={banner._id} className="rounded-lg border border-neutral-200 bg-white overflow-hidden">
               <img
-                src={`http://localhost:5000${banner.image}`}
+                src={getImageUrl(banner.image)}
                 alt={banner.title}
                 className="h-48 w-full object-cover"
               />

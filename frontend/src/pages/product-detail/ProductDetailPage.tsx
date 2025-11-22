@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { api } from "../../services/api";
 import { useCart } from "../../context/CartContext";
+import { getImageUrl } from "../../utils/imageUrl";
 import { formatCLP, formatPriceWithIVABreakdown } from "../../utils/currency";
 import type { Product, ProductVariant } from "../../types";
 
@@ -91,7 +92,7 @@ export function ProductDetailPage() {
             <>
               <div className="aspect-square overflow-hidden rounded-lg border border-neutral-200">
                 <img
-                  src={`http://localhost:5000${product.images[selectedImage]}`}
+                  src={getImageUrl(product.images[selectedImage])}
                   alt={product.name}
                   className="h-full w-full object-cover"
                 />
@@ -109,7 +110,7 @@ export function ProductDetailPage() {
                       }`}
                     >
                       <img
-                        src={`http://localhost:5000${img}`}
+                        src={getImageUrl(img)}
                         alt={`${product.name} ${idx + 1}`}
                         className="h-full w-full object-cover"
                       />

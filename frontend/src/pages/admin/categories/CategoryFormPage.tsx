@@ -3,6 +3,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { api } from '../../../services/api';
 import { useAuth } from '../../../context/AuthContext';
+import { getImageUrl } from '../../../utils/imageUrl';
 import type { Category } from '../../../types';
 
 interface CategoryFormData {
@@ -174,7 +175,7 @@ export function CategoryFormPage() {
               {existingImage && (
                 <div className="mb-2">
                   <img
-                    src={`http://localhost:5000${existingImage}`}
+                    src={getImageUrl(existingImage)}
                     alt="Category"
                     className="h-24 w-24 rounded object-cover"
                   />

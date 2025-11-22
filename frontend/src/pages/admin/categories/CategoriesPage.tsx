@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { api } from '../../../services/api';
 import { useAuth } from '../../../context/AuthContext';
+import { getImageUrl } from '../../../utils/imageUrl';
 import type { Category } from '../../../types';
 
 export function CategoriesPage() {
@@ -86,7 +87,7 @@ export function CategoriesPage() {
                     <div className="flex items-center gap-3">
                       {category.image && (
                         <img
-                          src={`http://localhost:5000${category.image}`}
+                          src={getImageUrl(category.image)}
                           alt={category.name}
                           className="h-12 w-12 rounded object-cover"
                         />

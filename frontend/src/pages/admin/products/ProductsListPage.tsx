@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { api } from '../../../services/api';
 import { useAuth } from '../../../context/AuthContext';
+import { getImageUrl } from '../../../utils/imageUrl';
 import type { Product } from '../../../types';
 
 export function ProductsListPage() {
@@ -240,7 +241,7 @@ export function ProductsListPage() {
                       <div className="flex items-center gap-3">
                         {product.images && product.images.length > 0 && (
                           <img
-                            src={`http://localhost:5000${product.images[0]}`}
+                            src={getImageUrl(product.images[0])}
                             alt={product.name}
                             className="h-12 w-12 rounded object-cover"
                           />

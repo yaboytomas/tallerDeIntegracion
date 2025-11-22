@@ -3,6 +3,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { useForm, useFieldArray } from 'react-hook-form';
 import { api } from '../../../services/api';
 import { useAuth } from '../../../context/AuthContext';
+import { getImageUrl } from '../../../utils/imageUrl';
 import type { Category } from '../../../types';
 
 interface ProductFormData {
@@ -280,7 +281,7 @@ export function ProductFormPage() {
                 {existingImages.map((img, idx) => (
                   <div key={idx} className="relative">
                     <img
-                      src={`http://localhost:5000${img}`}
+                      src={getImageUrl(img)}
                       alt={`Product ${idx + 1}`}
                       className="h-24 w-24 rounded object-cover"
                     />

@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useCart } from "../../context/CartContext";
+import { getImageUrl } from "../../utils/imageUrl";
 import { formatCLP } from "../../utils/currency";
 
 export function CartPage() {
@@ -88,7 +89,7 @@ export function CartPage() {
             >
               {item.product.images && item.product.images.length > 0 && (
                 <img
-                  src={`http://localhost:5000${item.product.images[0]}`}
+                  src={getImageUrl(item.product.images[0])}
                   alt={item.product.name}
                   className="h-24 w-24 rounded object-cover"
                 />

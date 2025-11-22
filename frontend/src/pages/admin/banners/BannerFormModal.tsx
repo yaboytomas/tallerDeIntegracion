@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { api } from '../../../services/api';
+import { getImageUrl } from '../../../utils/imageUrl';
 import type { HomeBanner } from '../../../types';
 
 interface BannerFormModalProps {
@@ -51,7 +52,7 @@ export function BannerFormModal({ banner, isOpen, onClose, onSuccess }: BannerFo
         order: banner.order,
       });
       if (banner.image) {
-        setImagePreview(`http://localhost:5000${banner.image}`);
+        setImagePreview(getImageUrl(banner.image));
       }
     } else {
       reset({
