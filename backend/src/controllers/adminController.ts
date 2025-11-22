@@ -229,7 +229,10 @@ export async function deleteProduct(req: AuthRequest, res: Response): Promise<vo
       throw new CustomError('Producto no encontrado', 404);
     }
 
-    if (hardDelete === 'true') {
+    // Convert to boolean - query params are always strings
+    const isHardDelete = hardDelete === 'true';
+
+    if (isHardDelete) {
       // Delete images from Cloudinary
       if (product.images && product.images.length > 0) {
         await Promise.all(product.images.map((image) => deleteCloudinaryImage(image)));
