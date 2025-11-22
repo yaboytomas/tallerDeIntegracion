@@ -1,14 +1,21 @@
 import nodemailer from 'nodemailer';
 
 // Email configuration
+const emailPort = parseInt(process.env.EMAIL_PORT || '587', 10);
 const emailConfig = {
   host: process.env.EMAIL_HOST || 'smtp.gmail.com',
-  port: parseInt(process.env.EMAIL_PORT || '587', 10),
-  secure: false, // true for 465, false for other ports
+  port: emailPort,
+  secure: emailPort === 465, // true for 465, false for 587
   auth: {
     user: process.env.EMAIL_USER,
     pass: process.env.EMAIL_PASS,
   },
+  tls: {
+    rejectUnauthorized: false, // For development/testing
+  },
+  connectionTimeout: 10000, // 10 seconds
+  greetingTimeout: 10000,
+  socketTimeout: 10000,
 };
 
 const frontendURL = process.env.FRONTEND_URL || 'http://localhost:5173';
@@ -19,8 +26,9 @@ let transporter: nodemailer.Transporter | null = null;
 
 if (emailConfig.auth.user && emailConfig.auth.pass) {
   transporter = nodemailer.createTransport(emailConfig);
+  console.log(`📧 Email service configured: ${emailConfig.auth.user} via ${emailConfig.host}:${emailConfig.port}`);
 } else {
-  console.warn('Email configuration missing. Email functionality will be disabled.');
+  console.warn('⚠️  Email configuration missing. Email functionality will be disabled.');
 }
 
 /**
