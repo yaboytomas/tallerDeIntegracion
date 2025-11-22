@@ -40,10 +40,10 @@ export function ProductsListPage() {
   };
 
   const handleDelete = async (id: string) => {
-    if (!confirm('¿Estás seguro de eliminar este producto?')) return;
+    if (!confirm('¿Estás seguro de eliminar este producto? Esta acción es permanente.')) return;
 
     try {
-      await api.deleteProduct(id, false); // Soft delete
+      await api.deleteProduct(id, true); // Hard delete - permanently removes product
       loadProducts();
     } catch (error) {
       console.error('Error deleting product:', error);
