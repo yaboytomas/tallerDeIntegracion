@@ -10,6 +10,7 @@
     "start:dev": "tsx src/server.ts",
     "create-admin": "tsx src/scripts/createAdmin.ts",
     "seed-content": "tsx src/scripts/seedContentPages.ts",
+    "cleanup-carts": "tsx src/scripts/cleanupOrphanedCarts.ts",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [

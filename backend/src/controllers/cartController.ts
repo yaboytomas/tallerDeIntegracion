@@ -166,6 +166,19 @@ export async function addToCart(req: AuthRequest, res: Response): Promise<void> 
     } else {
       // Create new cart item
       console.log('Creating new cart item');
+      
+      // IMPORTANT: Clean up any orphaned cart items first
+      // (items with userId: null but no valid sessionId)
+      if (!userId) {
+        console.log('Cleaning up orphaned cart items for product:', productId);
+        await CartItem.deleteMany({
+          userId: null,
+          sessionId: { $in: [null, ''] },
+          productId,
+          variantId: variantId || null,
+        });
+      }
+      
       const cartData: any = {
         productId,
         quantity,
@@ -175,6 +188,9 @@ export async function addToCart(req: AuthRequest, res: Response): Promise<void> 
         cartData.userId = userId;
         cartData.sessionId = null;
       } else {
+        if (!sessionId) {
+          throw new CustomError('Session ID requerido para usuarios invitados', 400);
+        }
         cartData.userId = null;
         cartData.sessionId = sessionId;
       }
@@ -185,8 +201,33 @@ export async function addToCart(req: AuthRequest, res: Response): Promise<void> 
         cartData.variantId = null;
       }
       
-      const createdItem = await CartItem.create(cartData);
-      cartItem = Array.isArray(createdItem) ? createdItem[0] : createdItem;
+      try {
+        const createdItem = await CartItem.create(cartData);
+        cartItem = Array.isArray(createdItem) ? createdItem[0] : createdItem;
+      } catch (createError: any) {
+        // If still duplicate key error, find and update existing item
+        if (createError.code === 11000) {
+          console.log('Duplicate key error, finding and updating existing item');
+          cartItem = await CartItem.findOne(query);
+          if (cartItem) {
+            cartItem.quantity += quantity;
+            await cartItem.save();
+          } else {
+            // Last resort: delete the duplicate and retry
+            console.log('Last resort: deleting duplicates and retrying');
+            await CartItem.deleteMany({
+              userId: userId || null,
+              sessionId: userId ? null : sessionId,
+              productId,
+              variantId: variantId || null,
+            });
+            const retryItem = await CartItem.create(cartData);
+            cartItem = Array.isArray(retryItem) ? retryItem[0] : retryItem;
+          }
+        } else {
+          throw createError;
+        }
+      }
     }
 
     // Set session cookie if not logged in
