@@ -4,20 +4,20 @@ const frontendURL = process.env.FRONTEND_URL || 'http://localhost:5173';
 const emailFrom = process.env.EMAIL_FROM || 'noreply@jspdetailing.cl';
 
 // Determine email provider
-const useSendGrid = !!process.env.SENDGRID_API_KEY;
-const useNodemailer = !useSendGrid && !!process.env.EMAIL_USER && !!process.env.EMAIL_PASS;
+const useResend = !!process.env.RESEND_API_KEY;
+const useNodemailer = !useResend && !!process.env.EMAIL_USER && !!process.env.EMAIL_PASS;
 
 let transporter: nodemailer.Transporter | null = null;
-let sgMail: any = null;
+let resend: any = null;
 
-// Configure SendGrid (for production on Render)
-if (useSendGrid) {
+// Configure Resend (for production on Render)
+if (useResend) {
   try {
-    sgMail = require('@sendgrid/mail');
-    sgMail.setApiKey(process.env.SENDGRID_API_KEY);
-    console.log('📧 Email service configured: SendGrid');
+    const { Resend } = require('resend');
+    resend = new Resend(process.env.RESEND_API_KEY);
+    console.log('📧 Email service configured: Resend');
   } catch (error) {
-    console.error('❌ SendGrid package not installed. Run: npm install @sendgrid/mail');
+    console.error('❌ Resend package not installed. Run: npm install resend');
   }
 }
 // Configure Nodemailer (for local development)
@@ -43,22 +43,21 @@ else if (useNodemailer) {
   console.log(`📧 Email service configured: Nodemailer (${emailConfig.auth.user})`);
 }
 else {
-  console.warn('⚠️  Email configuration missing. Set SENDGRID_API_KEY or EMAIL_USER/EMAIL_PASS');
+  console.warn('⚠️  Email configuration missing. Set RESEND_API_KEY or EMAIL_USER/EMAIL_PASS');
 }
 
 /**
  * Send email using configured provider
  */
 async function sendEmail(to: string, subject: string, html: string): Promise<void> {
-  if (sgMail) {
-    // SendGrid
-    const msg = {
-      to,
+  if (resend) {
+    // Resend
+    await resend.emails.send({
       from: emailFrom,
+      to,
       subject,
       html,
-    };
-    await sgMail.send(msg);
+    });
   } else if (transporter) {
     // Nodemailer
     const sendPromise = transporter.sendMail({
@@ -80,7 +79,7 @@ async function sendEmail(to: string, subject: string, html: string): Promise<voi
  * Send email verification
  */
 export async function sendVerificationEmail(_userId: string, email: string, token: string): Promise<void> {
-  if (!sgMail && !transporter) {
+  if (!resend && !transporter) {
     console.log('Email service not configured. Verification link:', `${frontendURL}/auth/verify-email?token=${token}`);
     return;
   }
@@ -129,9 +128,9 @@ export async function sendVerificationEmail(_userId: string, email: string, toke
  * Send password reset email
  */
 export async function sendPasswordResetEmail(_userId: string, email: string, token: string): Promise<void> {
-  if (!sgMail && !transporter) {
+  if (!resend && !transporter) {
     console.log('Email service not configured. Reset link:', `${frontendURL}/auth/reset-password?token=${token}`);
-    console.warn('⚠️  Email not sent - configure SENDGRID_API_KEY or EMAIL_USER/EMAIL_PASS');
+    console.warn('⚠️  Email not sent - configure RESEND_API_KEY or EMAIL_USER/EMAIL_PASS');
     return;
   }
 
@@ -183,8 +182,8 @@ export async function sendPasswordResetEmail(_userId: string, email: string, tok
  * Test email connection
  */
 export async function testEmailConnection(): Promise<boolean> {
-  if (sgMail) {
-    // SendGrid doesn't need verification - API key is validated on first use
+  if (resend) {
+    // Resend doesn't need verification - API key is validated on first use
     return true;
   }
   
