@@ -23,6 +23,7 @@ import { LoginPage } from "../pages/auth/login/LoginPage";
 import { RegisterPage } from "../pages/auth/register/RegisterPage";
 import { ForgotPasswordPage } from "../pages/auth/recover/ForgotPasswordPage";
 import { ResetPasswordPage } from "../pages/auth/recover/ResetPasswordPage";
+import { VerifyEmailPage } from "../pages/auth/verify/VerifyEmailPage";
 import { ContactPage } from "../pages/contact/ContactPage";
 import { NotFoundPage } from "../pages/NotFoundPage";
 
@@ -139,6 +140,7 @@ export const router = createBrowserRouter([
       { path: "contacto", element: <ContactPage /> },
       { path: "login", element: <LoginPage /> },
       { path: "registro", element: <RegisterPage /> },
+      { path: "verificar-email", element: <VerifyEmailPage /> },
       { path: "recuperar-password", element: <ForgotPasswordPage /> },
       { path: "reestablecer-password/:token", element: <ResetPasswordPage /> },
       { path: "inicio", element: <Navigate to="/" replace /> },

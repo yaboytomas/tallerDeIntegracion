@@ -80,11 +80,11 @@ async function sendEmail(to: string, subject: string, html: string): Promise<voi
  */
 export async function sendVerificationEmail(_userId: string, email: string, token: string): Promise<void> {
   if (!resend && !transporter) {
-    console.log('Email service not configured. Verification link:', `${frontendURL}/auth/verify-email?token=${token}`);
+    console.log('Email service not configured. Verification link:', `${frontendURL}/verificar-email?token=${token}`);
     return;
   }
 
-  const verificationURL = `${frontendURL}/auth/verify-email?token=${token}`;
+  const verificationURL = `${frontendURL}/verificar-email?token=${token}`;
 
   const html = `
     <!DOCTYPE html>
@@ -134,7 +134,7 @@ export async function sendPasswordResetEmail(_userId: string, email: string, tok
     return;
   }
 
-  const resetURL = `${frontendURL}/auth/reset-password?token=${token}`;
+  const resetURL = `${frontendURL}/reestablecer-password/${token}`;
 
   const html = `
     <!DOCTYPE html>
