@@ -96,6 +96,12 @@ export async function addToCart(req: AuthRequest, res: Response): Promise<void> 
       throw new CustomError('Product ID requerido', 400);
     }
 
+    // Validate MongoDB ObjectId format
+    const mongoose = require('mongoose');
+    if (!mongoose.Types.ObjectId.isValid(productId)) {
+      throw new CustomError('ID de producto inválido', 400);
+    }
+
     // Verify product exists and is active
     const product = await Product.findById(productId);
     if (!product || product.status !== 'active') {
@@ -152,7 +158,7 @@ export async function addToCart(req: AuthRequest, res: Response): Promise<void> 
       res.cookie('sessionId', sessionId, {
         httpOnly: true,
         secure: process.env.NODE_ENV === 'production',
-        sameSite: 'strict',
+        sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax', // 'none' for cross-origin in production
         maxAge: 30 * 24 * 60 * 60 * 1000, // 30 days
       });
     }
@@ -166,7 +172,9 @@ export async function addToCart(req: AuthRequest, res: Response): Promise<void> 
       res.status(error.statusCode).json({ error: error.message });
     } else {
       console.error('Add to cart error:', error);
-      res.status(500).json({ error: 'Error al agregar al carrito' });
+      console.error('Request body:', req.body);
+      console.error('Stack:', error.stack);
+      res.status(500).json({ error: 'Error al agregar al carrito', details: error.message });
     }
   }
 }
