@@ -90,17 +90,25 @@ export async function addToCart(req: AuthRequest, res: Response): Promise<void> 
   try {
     const { productId, variantId, quantity = 1 } = req.body;
     const userId = req.user?.userId;
-    const sessionId = req.cookies?.sessionId || req.headers['x-session-id'] || `session-${Date.now()}`;
+    
+    // Get or create sessionId
+    let sessionId = req.cookies?.sessionId || req.headers['x-session-id'];
+    if (!userId && !sessionId) {
+      sessionId = `session-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+    }
 
     if (!productId) {
       throw new CustomError('Product ID requerido', 400);
     }
 
     // Validate MongoDB ObjectId format
-    const mongoose = require('mongoose');
-    if (!mongoose.Types.ObjectId.isValid(productId)) {
+    const { Types } = require('mongoose');
+    if (!Types.ObjectId.isValid(productId)) {
+      console.error('Invalid product ID format:', productId);
       throw new CustomError('ID de producto inválido', 400);
     }
+    
+    console.log('Adding to cart:', { productId, variantId, quantity, userId, sessionId });
 
     // Verify product exists and is active
     const product = await Product.findById(productId);
@@ -123,42 +131,64 @@ export async function addToCart(req: AuthRequest, res: Response): Promise<void> 
       }
     }
 
-    // Find existing cart item
-    const query: any = { productId };
+    // Build query based on user type
+    let query: any = { productId };
+    
     if (userId) {
+      // Logged-in user
       query.userId = userId;
+      query.sessionId = null;
     } else {
+      // Guest user
+      query.userId = null;
       query.sessionId = sessionId;
     }
-    if (variantId) {
-      query.variantId = variantId;
-    } else {
-      query.variantId = null;
-    }
+    
+    // Handle variant
+    query.variantId = variantId || null;
+
+    console.log('Searching for existing cart item with query:', query);
 
     let cartItem = await CartItem.findOne(query);
 
     if (cartItem) {
       // Update quantity
+      console.log('Found existing cart item, updating quantity');
       cartItem.quantity += quantity;
       await cartItem.save();
     } else {
       // Create new cart item
-      cartItem = await CartItem.create({
-        userId: userId || undefined,
-        sessionId: userId ? undefined : sessionId,
+      console.log('Creating new cart item');
+      const cartData: any = {
         productId,
-        variantId: variantId || undefined,
         quantity,
-      });
+      };
+      
+      if (userId) {
+        cartData.userId = userId;
+        cartData.sessionId = null;
+      } else {
+        cartData.userId = null;
+        cartData.sessionId = sessionId;
+      }
+      
+      if (variantId) {
+        cartData.variantId = variantId;
+      } else {
+        cartData.variantId = null;
+      }
+      
+      const createdItem = await CartItem.create(cartData);
+      cartItem = Array.isArray(createdItem) ? createdItem[0] : createdItem;
     }
 
     // Set session cookie if not logged in
-    if (!userId && !req.cookies?.sessionId) {
+    if (!userId) {
+      console.log('Setting session cookie:', sessionId);
       res.cookie('sessionId', sessionId, {
         httpOnly: true,
         secure: process.env.NODE_ENV === 'production',
-        sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax', // 'none' for cross-origin in production
+        sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
         maxAge: 30 * 24 * 60 * 60 * 1000, // 30 days
       });
     }
