@@ -29,5 +29,8 @@ router.post('/', optionalAuth, cartController.addToCart);
 router.put('/:id', optionalAuth, cartController.updateCartItem);
 router.delete('/:id', optionalAuth, cartController.removeFromCart);
 
+// Quotation request (no auth required - can be used by guests)
+router.post('/request-quote', optionalAuth, cartController.requestQuotation);
+
 export default router;
 

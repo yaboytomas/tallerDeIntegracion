@@ -164,6 +164,11 @@ class ApiService {
     return response.data;
   }
 
+  async requestQuotation(data: { name: string; email: string; phone: string; message?: string }) {
+    const response = await this.api.post('/cart/request-quote', data);
+    return response.data;
+  }
+
   // User endpoints
   async getProfile(): Promise<User> {
     const response = await this.api.get('/user/profile');

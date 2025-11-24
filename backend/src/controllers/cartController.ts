@@ -5,6 +5,7 @@ import { ProductVariant } from '../models/ProductVariant';
 import { AuthRequest } from '../types';
 import { CustomError } from '../middleware/errorHandler';
 import { calculatePriceWithIVA } from '../utils/currency';
+import { sendQuotationRequestToCustomer, sendQuotationRequestToAdmin } from '../services/emailService';
 
 /**
  * Get user cart
@@ -253,6 +254,89 @@ export async function removeFromCart(req: AuthRequest, res: Response): Promise<v
       res.status(error.statusCode).json({ error: error.message });
     } else {
       res.status(500).json({ error: 'Error al eliminar del carrito' });
+    }
+  }
+}
+
+/**
+ * Request quotation for cart items
+ */
+export async function requestQuotation(req: AuthRequest, res: Response): Promise<void> {
+  try {
+    const { name, email, phone, message } = req.body;
+    const userId = req.user?.userId;
+    const sessionId = req.cookies?.sessionId || req.headers['x-session-id'];
+
+    // Validate required fields
+    if (!name || !email || !phone) {
+      throw new CustomError('Nombre, email y teléfono son requeridos', 400);
+    }
+
+    // Validate email format
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      throw new CustomError('Email inválido', 400);
+    }
+
+    if (!userId && !sessionId) {
+      throw new CustomError('Carrito vacío', 400);
+    }
+
+    const query: any = userId ? { userId } : { sessionId };
+
+    // Get cart items
+    const cartItems = await CartItem.find(query)
+      .populate('productId')
+      .populate('variantId')
+      .lean();
+
+    if (!cartItems || cartItems.length === 0) {
+      throw new CustomError('El carrito está vacío', 400);
+    }
+
+    // Prepare items for email
+    const items = [];
+    for (const item of cartItems) {
+      const product = item.productId as any;
+      const variant = item.variantId as any;
+
+      if (!product || product.status !== 'active') {
+        continue;
+      }
+
+      const basePrice = product.basePrice + (variant?.priceModifier || 0);
+      const priceWithIVA = calculatePriceWithIVA(basePrice);
+      const itemSubtotal = priceWithIVA * item.quantity;
+
+      items.push({
+        productName: product.name,
+        variantName: variant?.name || null,
+        quantity: item.quantity,
+        price: priceWithIVA,
+        subtotal: itemSubtotal,
+      });
+    }
+
+    if (items.length === 0) {
+      throw new CustomError('No hay productos activos en el carrito', 400);
+    }
+
+    // Send emails
+    await Promise.all([
+      sendQuotationRequestToCustomer(name, email, items),
+      sendQuotationRequestToAdmin(name, email, phone, message || '', items),
+    ]);
+
+    res.json({
+      message: 'Solicitud de cotización enviada exitosamente',
+      email: email,
+    });
+  } catch (error: any) {
+    if (error instanceof CustomError) {
+      res.status(error.statusCode).json({ error: error.message });
+    } else {
+      console.error('Request quotation error:', error);
+      res.status(500).json({ error: 'Error al solicitar cotización' });
     }
   }
 }

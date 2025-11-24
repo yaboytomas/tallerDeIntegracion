@@ -3,11 +3,20 @@ import { Link, useNavigate } from "react-router-dom";
 import { useCart } from "../../context/CartContext";
 import { getImageUrl } from "../../utils/imageUrl";
 import { formatCLP } from "../../utils/currency";
+import { api } from "../../services/api";
 
 export function CartPage() {
   const navigate = useNavigate();
   const { cart, loading, updateCartItem, removeFromCart } = useCart();
   const [updating, setUpdating] = useState<string | null>(null);
+  const [showQuoteModal, setShowQuoteModal] = useState(false);
+  const [quoteForm, setQuoteForm] = useState({
+    name: "",
+    email: "",
+    phone: "",
+    message: "",
+  });
+  const [submittingQuote, setSubmittingQuote] = useState(false);
 
   const handleQuantityChange = async (itemId: string, newQuantity: number) => {
     if (newQuantity < 1) {
@@ -35,6 +44,27 @@ export function CartPage() {
       alert(error.response?.data?.error || "Error al eliminar producto");
     } finally {
       setUpdating(null);
+    }
+  };
+
+  const handleRequestQuote = async (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    if (!quoteForm.name || !quoteForm.email || !quoteForm.phone) {
+      alert("Por favor completa todos los campos requeridos");
+      return;
+    }
+
+    try {
+      setSubmittingQuote(true);
+      await api.requestQuotation(quoteForm);
+      alert("¡Cotización solicitada! Te contactaremos pronto.");
+      setShowQuoteModal(false);
+      setQuoteForm({ name: "", email: "", phone: "", message: "" });
+    } catch (error: any) {
+      alert(error.response?.data?.error || "Error al solicitar cotización");
+    } finally {
+      setSubmittingQuote(false);
     }
   };
 
@@ -173,6 +203,12 @@ export function CartPage() {
             >
               Proceder al Checkout
             </button>
+            <button
+              onClick={() => setShowQuoteModal(true)}
+              className="mt-3 w-full rounded-full border-2 border-primary px-6 py-3 text-sm font-semibold text-primary hover:bg-primary/10"
+            >
+              Solicitar Cotización
+            </button>
             <Link
               to="/productos"
               className="mt-4 block text-center text-sm text-primary hover:text-primary-dark"
@@ -182,6 +218,111 @@ export function CartPage() {
           </div>
         </div>
       </div>
+
+      {/* Quote Request Modal */}
+      {showQuoteModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
+          <div className="w-full max-w-md rounded-2xl bg-white p-6 shadow-xl">
+            <div className="mb-4 flex items-center justify-between">
+              <h2 className="text-xl font-bold text-neutral-900">
+                Solicitar Cotización
+              </h2>
+              <button
+                onClick={() => setShowQuoteModal(false)}
+                className="text-2xl text-neutral-400 hover:text-neutral-600"
+              >
+                ×
+              </button>
+            </div>
+            
+            <p className="mb-6 text-sm text-neutral-600">
+              Envíanos tus datos y te contactaremos con una cotización personalizada
+              en menos de 24 horas.
+            </p>
+
+            <form onSubmit={handleRequestQuote} className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-neutral-700">
+                  Nombre completo *
+                </label>
+                <input
+                  type="text"
+                  value={quoteForm.name}
+                  onChange={(e) =>
+                    setQuoteForm({ ...quoteForm, name: e.target.value })
+                  }
+                  className="mt-1 w-full rounded-lg border border-neutral-300 px-4 py-2 focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
+                  required
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-neutral-700">
+                  Email *
+                </label>
+                <input
+                  type="email"
+                  value={quoteForm.email}
+                  onChange={(e) =>
+                    setQuoteForm({ ...quoteForm, email: e.target.value })
+                  }
+                  className="mt-1 w-full rounded-lg border border-neutral-300 px-4 py-2 focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
+                  required
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-neutral-700">
+                  Teléfono *
+                </label>
+                <input
+                  type="tel"
+                  value={quoteForm.phone}
+                  onChange={(e) =>
+                    setQuoteForm({ ...quoteForm, phone: e.target.value })
+                  }
+                  className="mt-1 w-full rounded-lg border border-neutral-300 px-4 py-2 focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
+                  placeholder="+56 9 XXXX XXXX"
+                  required
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-neutral-700">
+                  Mensaje (opcional)
+                </label>
+                <textarea
+                  value={quoteForm.message}
+                  onChange={(e) =>
+                    setQuoteForm({ ...quoteForm, message: e.target.value })
+                  }
+                  rows={3}
+                  className="mt-1 w-full rounded-lg border border-neutral-300 px-4 py-2 focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
+                  placeholder="¿Alguna pregunta o requerimiento especial?"
+                />
+              </div>
+
+              <div className="flex gap-3">
+                <button
+                  type="button"
+                  onClick={() => setShowQuoteModal(false)}
+                  className="flex-1 rounded-full border border-neutral-300 px-6 py-3 text-sm font-semibold text-neutral-700 hover:bg-neutral-50"
+                  disabled={submittingQuote}
+                >
+                  Cancelar
+                </button>
+                <button
+                  type="submit"
+                  className="flex-1 rounded-full bg-primary px-6 py-3 text-sm font-semibold text-white hover:bg-primary-dark disabled:opacity-50"
+                  disabled={submittingQuote}
+                >
+                  {submittingQuote ? "Enviando..." : "Enviar"}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </section>
   );
 }

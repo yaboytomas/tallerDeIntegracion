@@ -3,8 +3,10 @@ import { Order } from '../models/Order';
 import { Product } from '../models/Product';
 import { ProductVariant } from '../models/ProductVariant';
 import { CartItem } from '../models/CartItem';
+import { User } from '../models/User';
 import { AuthRequest } from '../types';
 import { CustomError } from '../middleware/errorHandler';
+import { sendOrderConfirmation } from '../services/emailService';
 
 /**
  * Create a new order from cart
@@ -119,6 +121,20 @@ export async function createOrder(req: AuthRequest, res: Response): Promise<void
       .populate('items.productId', 'name slug images')
       .populate('items.variantId', 'name sku')
       .lean();
+
+    // Get user details for email
+    const user = await User.findById(req.user.userId);
+    if (user) {
+      // Send order confirmation email
+      await sendOrderConfirmation(
+        `${user.firstName} ${user.lastName}`,
+        user.email,
+        order.orderNumber,
+        orderItems,
+        total,
+        shippingAddress
+      );
+    }
 
     res.status(201).json({
       message: 'Pedido creado exitosamente',
