@@ -21,7 +21,17 @@ const PORT = process.env.PORT || 5000;
 app.set('trust proxy', 1);
 
 // Connect to MongoDB
-connectDB();
+connectDB().then(async () => {
+  // Update cart indexes after connection (one-time migration)
+  try {
+    const { CartItem } = require('./models/CartItem');
+    console.log('🔄 Checking CartItem indexes...');
+    await CartItem.createIndexes();
+    console.log('✅ CartItem indexes verified/updated');
+  } catch (error: any) {
+    console.error('⚠️ Error updating CartItem indexes:', error.message);
+  }
+});
 
 // Middleware
 app.use(securityHeaders);
