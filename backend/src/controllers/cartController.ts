@@ -99,9 +99,15 @@ export async function addToCart(req: AuthRequest, res: Response): Promise<void> 
     
     // Get or create sessionId (prefer header over cookie for cross-origin)
     let sessionId = req.headers['x-session-id'] as string || req.cookies?.sessionId;
-    if (!userId && !sessionId) {
-      sessionId = `session-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
-      console.log('Generated new sessionId:', sessionId);
+    
+    // For guest users, always ensure we have a valid sessionId
+    if (!userId) {
+      if (!sessionId || sessionId === '' || sessionId === 'null' || sessionId === 'undefined') {
+        sessionId = `guest-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+        console.log('Generated new sessionId for guest:', sessionId);
+      } else {
+        console.log('Using existing sessionId for guest:', sessionId);
+      }
     }
     
     console.log('Session info:', { 
@@ -151,103 +157,112 @@ export async function addToCart(req: AuthRequest, res: Response): Promise<void> 
     if (userId) {
       // Logged-in user
       query.userId = userId;
-      query.sessionId = null;
     } else {
-      // Guest user
-      query.userId = null;
+      // Guest user - must have valid sessionId
+      if (!sessionId) {
+        throw new CustomError('Session ID requerido para usuarios invitados', 400);
+      }
       query.sessionId = sessionId;
+      query.userId = null; // Explicitly set to null for guest users
     }
     
-    // Handle variant
-    query.variantId = variantId || null;
+    // Handle variant (explicitly set to null if not provided)
+    if (variantId) {
+      query.variantId = variantId;
+    } else {
+      query.variantId = null;
+    }
 
-    console.log('Searching for existing cart item with query:', query);
+    console.log('Searching for existing cart item with query:', JSON.stringify(query, null, 2));
 
     let cartItem = await CartItem.findOne(query);
 
     if (cartItem) {
       // Update quantity
-      console.log('Found existing cart item, updating quantity');
+      console.log('Found existing cart item, updating quantity from', cartItem.quantity, 'to', cartItem.quantity + quantity);
       cartItem.quantity += quantity;
       await cartItem.save();
+      console.log('✅ Successfully updated cart item');
     } else {
       // Create new cart item
       console.log('Creating new cart item');
       
-      // IMPORTANT: Clean up any orphaned cart items first
-      // (items with userId: null but no valid sessionId)
-      if (!userId) {
-        console.log('Cleaning up orphaned cart items for product:', productId);
-        await CartItem.deleteMany({
-          userId: null,
-          sessionId: { $in: [null, ''] },
-          productId,
-          variantId: variantId || null,
-        });
-      }
-      
+      // Prepare cart data with explicit values
       const cartData: any = {
         productId,
         quantity,
+        variantId: variantId || null,
       };
       
       if (userId) {
         cartData.userId = userId;
-        cartData.sessionId = null;
+        // Don't set sessionId at all for logged-in users
       } else {
-        if (!sessionId) {
-          throw new CustomError('Session ID requerido para usuarios invitados', 400);
-        }
-        cartData.userId = null;
         cartData.sessionId = sessionId;
+        // Don't set userId at all for guest users (let default handle it)
       }
       
-      if (variantId) {
-        cartData.variantId = variantId;
-      } else {
-        cartData.variantId = null;
-      }
+      console.log('Cart data to create:', JSON.stringify(cartData, null, 2));
       
       try {
         const createdItem = await CartItem.create(cartData);
         cartItem = Array.isArray(createdItem) ? createdItem[0] : createdItem;
+        console.log('✅ Successfully created cart item:', cartItem?._id);
       } catch (createError: any) {
-        // If still duplicate key error, find and update existing item
+        console.error('❌ Error creating cart item:', createError.message);
+        console.error('Error code:', createError.code);
+        console.error('Error name:', createError.name);
+        
+        // If duplicate key error, try to find and update existing item
         if (createError.code === 11000) {
-          console.log('Duplicate key error, finding and updating existing item');
+          console.log('⚠️ Duplicate key error detected, attempting to find and update existing item');
           cartItem = await CartItem.findOne(query);
           if (cartItem) {
+            console.log('Found existing item, updating quantity');
             cartItem.quantity += quantity;
             await cartItem.save();
+            console.log('✅ Successfully updated existing item');
           } else {
-            // Last resort: delete the duplicate and retry
-            console.log('Last resort: deleting duplicates and retrying');
-            await CartItem.deleteMany({
-              userId: userId || null,
-              sessionId: userId ? null : sessionId,
-              productId,
-              variantId: variantId || null,
-            });
-            const retryItem = await CartItem.create(cartData);
-            cartItem = Array.isArray(retryItem) ? retryItem[0] : retryItem;
+            // Item exists but couldn't find it - this shouldn't happen
+            // Try one more time with a fresh query
+            console.log('⚠️ Could not find duplicate item, retrying...');
+            await new Promise<void>(resolve => setTimeout(resolve, 100)); // Small delay
+            cartItem = await CartItem.findOne(query);
+            if (cartItem) {
+              cartItem.quantity += quantity;
+              await cartItem.save();
+              console.log('✅ Successfully updated item on retry');
+            } else {
+              throw new CustomError('Error al agregar producto al carrito. Por favor intente nuevamente.', 409);
+            }
           }
         } else {
+          // Some other database error
           throw createError;
         }
       }
     }
 
-    // Set session cookie if not logged in
-    if (!userId) {
-      console.log('Setting session cookie:', sessionId);
-      res.cookie('sessionId', sessionId, {
+    // Set session cookie and return sessionId for guest users
+    if (!userId && sessionId) {
+      const isProduction = process.env.NODE_ENV === 'production';
+      const cookieOptions = {
         httpOnly: true,
-        secure: process.env.NODE_ENV === 'production',
-        sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
+        secure: isProduction,
+        sameSite: isProduction ? 'none' as const : 'lax' as const,
         maxAge: 30 * 24 * 60 * 60 * 1000, // 30 days
+      };
+      
+      console.log('Setting session cookie with options:', { 
+        sessionId, 
+        isProduction, 
+        ...cookieOptions 
       });
+      
+      res.cookie('sessionId', sessionId, cookieOptions);
     }
 
+    console.log('✅ Successfully added to cart, returning response');
     res.status(201).json({
       message: 'Producto agregado al carrito',
       cartItem,

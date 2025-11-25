@@ -39,10 +39,18 @@ export function CartProvider({ children }: { children: ReactNode }) {
 
   const addToCart = async (productId: string, variantId?: string, quantity: number = 1) => {
     try {
+      console.log('📦 CartContext: Adding to cart...', { productId, variantId, quantity });
       await api.addToCart(productId, variantId, quantity);
+      console.log('✅ CartContext: Item added, refreshing cart...');
       await refreshCart();
+      console.log('✅ CartContext: Cart refreshed successfully');
     } catch (error: any) {
-      console.error('Error adding to cart:', error);
+      console.error('❌ Error adding to cart:', error);
+      console.error('Error details:', {
+        message: error.message,
+        response: error.response?.data,
+        status: error.response?.status
+      });
       throw error;
     }
   };

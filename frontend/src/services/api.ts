@@ -26,9 +26,13 @@ class ApiService {
         }
         
         // Add session ID for guest users (cart persistence)
-        const sessionId = localStorage.getItem('guestSessionId');
-        if (sessionId && !token) {
-          config.headers['x-session-id'] = sessionId;
+        // Only add if not logged in
+        if (!token) {
+          const sessionId = localStorage.getItem('guestSessionId');
+          if (sessionId && sessionId !== 'null' && sessionId !== 'undefined') {
+            config.headers['x-session-id'] = sessionId;
+            console.log('🔑 Sending guest session ID:', sessionId);
+          }
         }
         
         return config;
@@ -161,13 +165,18 @@ class ApiService {
   }
 
   async addToCart(productId: string, variantId?: string, quantity: number = 1) {
+    console.log('🛒 Adding to cart:', { productId, variantId, quantity });
+    
     const response = await this.api.post('/cart', { productId, variantId, quantity });
     
     // Store sessionId for guest users
-    if (response.data.sessionId && !localStorage.getItem('accessToken')) {
+    const isLoggedIn = !!localStorage.getItem('accessToken');
+    if (response.data.sessionId && !isLoggedIn) {
+      console.log('💾 Storing guest session ID:', response.data.sessionId);
       localStorage.setItem('guestSessionId', response.data.sessionId);
     }
     
+    console.log('✅ Item added to cart successfully');
     return response.data;
   }
 

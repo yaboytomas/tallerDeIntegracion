@@ -37,8 +37,26 @@ const cartItemSchema = new Schema<ICartItem>(
 // Indexes - ensure user or session is present
 cartItemSchema.index({ userId: 1 });
 cartItemSchema.index({ sessionId: 1 });
-cartItemSchema.index({ userId: 1, productId: 1, variantId: 1 }, { unique: true, sparse: true });
-cartItemSchema.index({ sessionId: 1, productId: 1, variantId: 1 }, { unique: true, sparse: true });
+
+// Compound unique index for logged-in users (userId must exist, variantId can be null)
+cartItemSchema.index(
+  { userId: 1, productId: 1, variantId: 1 }, 
+  { 
+    unique: true, 
+    partialFilterExpression: { userId: { $type: 'objectId' } }
+  }
+);
+
+// Compound unique index for guest users (sessionId must exist, variantId can be null)
+cartItemSchema.index(
+  { sessionId: 1, productId: 1, variantId: 1 }, 
+  { 
+    unique: true,
+    partialFilterExpression: { 
+      sessionId: { $type: 'string', $nin: [null, ''] }
+    }
+  }
+);
 
 export const CartItem = mongoose.model<ICartItem>('CartItem', cartItemSchema);
 
