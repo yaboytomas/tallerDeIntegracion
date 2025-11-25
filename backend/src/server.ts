@@ -25,11 +25,32 @@ connectDB().then(async () => {
   // Update cart indexes after connection (one-time migration)
   try {
     const { CartItem } = require('./models/CartItem');
-    console.log('🔄 Checking CartItem indexes...');
+    console.log('🔄 Migrating CartItem indexes...');
+    
+    // Get existing indexes
+    const existingIndexes = await CartItem.collection.getIndexes();
+    console.log('📋 Current indexes:', Object.keys(existingIndexes));
+    
+    // Drop all indexes except _id
+    try {
+      await CartItem.collection.dropIndexes();
+      console.log('✅ Dropped old indexes');
+    } catch (dropError: any) {
+      if (dropError.codeName !== 'NamespaceNotFound') {
+        console.log('⚠️ Could not drop indexes:', dropError.message);
+      }
+    }
+    
+    // Create new indexes with proper partial filters
     await CartItem.createIndexes();
-    console.log('✅ CartItem indexes verified/updated');
+    
+    // Verify new indexes
+    const newIndexes = await CartItem.collection.getIndexes();
+    console.log('📋 New indexes created:', Object.keys(newIndexes));
+    console.log('✅ CartItem indexes migration complete!');
   } catch (error: any) {
-    console.error('⚠️ Error updating CartItem indexes:', error.message);
+    console.error('❌ Error migrating CartItem indexes:', error.message);
+    console.error('Stack:', error.stack);
   }
 });
 
