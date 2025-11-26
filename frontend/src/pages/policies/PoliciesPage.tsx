@@ -58,53 +58,79 @@ export function PoliciesPage() {
   if (loading) {
     return (
       <section className="mx-auto max-w-5xl px-4 py-12 text-center">
-        <p className="text-neutral-600">Cargando políticas...</p>
+        <div className="inline-block h-16 w-16 animate-spin rounded-full border-4 border-solid border-purple-600 border-r-transparent"></div>
+        <p className="mt-6 text-lg font-semibold text-gradient">Cargando políticas...</p>
       </section>
     );
   }
 
   return (
-    <section className="mx-auto max-w-5xl px-4 py-12 sm:px-6 lg:px-8">
-      <header className="space-y-4 text-center">
-        <h1 className="text-3xl font-bold text-neutral-900">Políticas JSP Detailing</h1>
-        <p className="text-neutral-600">
-          Transparencia y cumplimiento para asegurar tu confianza en cada compra.
+    <section className="mx-auto max-w-5xl px-4 py-12 sm:px-6 lg:px-8 animate-fade-in">
+      <header className="space-y-6 text-center mb-16">
+        <div className="inline-block text-6xl mb-4 animate-float">📜</div>
+        <h1 className="heading-artistic">Políticas JSP Detailing</h1>
+        <p className="text-lg text-neutral-700 max-w-2xl mx-auto leading-relaxed">
+          ✨ Transparencia y cumplimiento para asegurar tu confianza en cada compra.
         </p>
       </header>
 
       <div className="mt-12 space-y-8">
-        {policySlugs.map((policyDef) => {
+        {policySlugs.map((policyDef, index) => {
           const policy = policies[policyDef.id];
+          
+          // Different gradient colors for each policy
+          const gradients = [
+            '#667eea, #764ba2',
+            '#f093fb, #f5576c',
+            '#4facfe, #00f2fe',
+            '#43e97b, #38f9d7',
+            '#fa709a, #fee140',
+            '#667eea, #f093fb'
+          ];
+          
+          const emojiIcons = ['📦', '🔄', '✅', '🔒', '📋', '🍪'];
           
           return (
             <article
               key={policyDef.id}
               id={policyDef.id}
-              className="scroll-mt-24 rounded-3xl border border-neutral-200 bg-white p-6 shadow-sm lg:p-8"
+              className="card-premium scroll-mt-24 rounded-3xl border-2 border-transparent bg-white p-8 shadow-2xl lg:p-10 animate-fade-in"
+              style={{
+                background: `linear-gradient(white, white) padding-box, linear-gradient(135deg, ${gradients[index]}) border-box`,
+                animationDelay: `${index * 100}ms`
+              }}
             >
-              <h2 className="text-xl font-semibold text-neutral-900">
-                {policy?.title || policyDef.title}
-              </h2>
+              <div className="flex items-start gap-4 mb-6">
+                <div className="text-4xl flex-shrink-0">{emojiIcons[index]}</div>
+                <div>
+                  <h2 className="text-2xl font-black text-gradient">
+                    {policy?.title || policyDef.title}
+                  </h2>
+                </div>
+              </div>
               
               {/* Si hay contenido desde la BD, usarlo */}
               {policy && policy.content ? (
                 <div 
-                  className="prose prose-neutral mt-4 max-w-none text-sm text-neutral-600"
+                  className="prose prose-neutral prose-headings:text-gradient prose-headings:font-bold prose-p:text-neutral-700 prose-p:leading-relaxed mt-6 max-w-none"
                   dangerouslySetInnerHTML={{ __html: policy.content }}
                 />
               ) : (
                 /* Fallback: contenido por defecto */
-                <div className="mt-4 text-sm text-neutral-600">
-                  <p>{policyDef.defaultContent}</p>
-                  <p className="mt-3 italic text-neutral-500">
-                    Esta sección está pendiente de ser editada por el administrador.
-                  </p>
+                <div className="mt-6">
+                  <p className="text-neutral-700 leading-relaxed text-base">{policyDef.defaultContent}</p>
+                  <div className="mt-6 p-4 rounded-xl bg-gradient-to-r from-purple-50 to-pink-50 border-2 border-dashed border-purple-300">
+                    <p className="text-sm font-semibold text-purple-900 flex items-center gap-2">
+                      <span>⚠️</span>
+                      Esta sección está pendiente de ser editada por el administrador.
+                    </p>
+                  </div>
                 </div>
               )}
               
               {policy && policy.updatedAt && (
-                <p className="mt-4 text-xs text-neutral-400">
-                  Última actualización: {new Date(policy.updatedAt).toLocaleDateString("es-CL")}
+                <p className="mt-6 text-xs text-neutral-500 font-medium">
+                  📅 Última actualización: {new Date(policy.updatedAt).toLocaleDateString("es-CL")}
                 </p>
               )}
             </article>
@@ -112,17 +138,27 @@ export function PoliciesPage() {
         })}
       </div>
 
-      <aside className="mt-12 rounded-3xl border border-primary/30 bg-primary/5 p-6 text-sm text-neutral-700">
-        <p>
-          ¿Tienes dudas? Escríbenos a{" "}
-          <a
-            href="mailto:postventa@jspdetailing.cl"
-            className="font-semibold text-primary hover:underline"
-          >
-            postventa@jspdetailing.cl
-          </a>{" "}
-          o llámanos al <span className="font-semibold">+56 9 1234 5678</span>.
-        </p>
+      <aside className="mt-12 card-premium rounded-3xl border-2 border-transparent bg-gradient-to-br from-purple-50 via-white to-pink-50 p-8 shadow-2xl"
+        style={{
+          background: `linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 20%, #fff 50%, #ffeef8 80%, #f5f7fa 100%) padding-box, linear-gradient(135deg, #667eea, #764ba2) border-box`
+        }}
+      >
+        <div className="flex items-start gap-4">
+          <div className="text-4xl">💬</div>
+          <div>
+            <h3 className="font-black text-xl text-gradient mb-3">¿Tienes dudas?</h3>
+            <p className="text-neutral-700 leading-relaxed">
+              Escríbenos a{" "}
+              <a
+                href="mailto:postventa@jspdetailing.cl"
+                className="link-underline font-bold text-purple-600 hover:text-gradient"
+              >
+                postventa@jspdetailing.cl
+              </a>{" "}
+              o llámanos al <span className="font-bold text-gradient">+56 9 1234 5678</span>.
+            </p>
+          </div>
+        </div>
       </aside>
     </section>
   );
