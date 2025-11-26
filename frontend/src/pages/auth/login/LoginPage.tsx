@@ -53,41 +53,57 @@ export function LoginPage() {
   }
 
   return (
-    <div className="mx-auto flex min-h-[calc(100vh-200px)] max-w-4xl items-center px-4 py-12 sm:px-6 lg:px-8">
-      <div className="w-full space-y-6">
+    <div className="mx-auto flex min-h-[calc(100vh-200px)] max-w-4xl items-center px-4 py-12 sm:px-6 lg:px-8 animate-fade-in">
+      <div className="w-full space-y-8">
         {location.state?.message && (
-          <div className="rounded-lg bg-green-50 border border-green-200 p-4 text-green-800">
-            <p className="font-medium">✓ Registro exitoso</p>
-            <p className="text-sm mt-1">{location.state.message}</p>
+          <div className="rounded-2xl bg-gradient-to-r from-green-500 to-emerald-500 border-2 border-white/20 p-5 text-white shadow-xl animate-scale-in">
+            <p className="font-black text-lg">✓ ¡Registro exitoso!</p>
+            <p className="text-sm mt-1 opacity-90">{location.state.message}</p>
           </div>
         )}
 
         <div className="grid w-full gap-12 lg:grid-cols-2">
-          <div className="space-y-6">
-            <h1 className="text-3xl font-bold text-neutral-900">
-              Inicia sesión en tu cuenta
+          <div className="space-y-6 animate-fade-in">
+            <div className="inline-block text-6xl mb-4 animate-float">🔐</div>
+            <h1 className="heading-artistic">
+              Inicia Sesión
             </h1>
-            <p className="text-sm text-neutral-600">
-              Accede a tus pedidos, administra direcciones y sincroniza tu carro de compras.
+            <p className="text-lg text-neutral-700 leading-relaxed">
+              ✨ Accede a tus pedidos, administra direcciones y sincroniza tu carro de compras.
             </p>
-            <div className="rounded-3xl bg-primary/5 p-6 text-sm text-neutral-700">
-              <p className="font-semibold text-primary">¿Nuevo en JSP Detailing?</p>
-              <p className="mt-2">
+            <div className="card-premium rounded-3xl border-2 border-transparent bg-gradient-to-br from-purple-50 via-white to-pink-50 p-6 shadow-xl"
+              style={{
+                background: `linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 20%, #fff 50%, #ffeef8 80%, #f5f7fa 100%) padding-box, linear-gradient(135deg, #667eea, #764ba2) border-box`
+              }}
+            >
+              <div className="badge-artistic inline-block mb-3">
+                ✨ ¿Nuevo aquí?
+              </div>
+              <p className="text-neutral-700 leading-relaxed">
                 Crea tu cuenta y recibe consejos exclusivos de detailing, novedades y promociones especiales.
               </p>
+              <Link
+                to="/registro"
+                className="mt-4 inline-flex items-center gap-2 text-sm font-bold text-gradient link-underline"
+              >
+                Crear cuenta ahora →
+              </Link>
             </div>
           </div>
 
-          <div className="space-y-6">
+          <div className="space-y-6 animate-fade-in" style={{animationDelay: '200ms'}}>
             {error && (
-              <div className="rounded-lg bg-red-50 border border-red-200 p-4 text-red-800">
-                <p className="font-medium">Error al iniciar sesión</p>
-                <p className="text-sm mt-1">{error}</p>
+              <div className="rounded-2xl bg-gradient-to-r from-red-500 to-pink-500 border-2 border-white/20 p-5 text-white shadow-xl animate-scale-in">
+                <p className="font-black text-lg">❌ Error al iniciar sesión</p>
+                <p className="text-sm mt-1 opacity-90">{error}</p>
               </div>
             )}
 
             <form
-              className="space-y-6 rounded-3xl border border-neutral-200 bg-white p-8 shadow-sm"
+              className="card-premium space-y-6 rounded-3xl border-2 border-transparent bg-white p-8 shadow-2xl"
+              style={{
+                background: `linear-gradient(white, white) padding-box, linear-gradient(135deg, #667eea, #764ba2, #f093fb) border-box`
+              }}
               onSubmit={handleSubmit(onSubmit)}
               noValidate
             >
@@ -99,7 +115,7 @@ export function LoginPage() {
                   id="email"
                   type="email"
                   autoComplete="email"
-                  className="w-full rounded-xl border border-neutral-300 px-4 py-3 text-sm shadow-sm outline-none transition-colors focus:border-primary focus:ring-2 focus:ring-primary/20"
+                  className="w-full rounded-xl border-2 border-neutral-200 px-5 py-4 text-sm shadow-sm outline-none transition-all duration-300 focus:border-purple-500 focus:ring-4 focus:ring-purple-200 focus:scale-105"
                   placeholder="tu.correo@ejemplo.cl"
                   {...register("email")}
                 />
@@ -116,7 +132,7 @@ export function LoginPage() {
                   id="password"
                   type="password"
                   autoComplete="current-password"
-                  className="w-full rounded-xl border border-neutral-300 px-4 py-3 text-sm shadow-sm outline-none transition-colors focus:border-primary focus:ring-2 focus:ring-primary/20"
+                  className="w-full rounded-xl border-2 border-neutral-200 px-5 py-4 text-sm shadow-sm outline-none transition-all duration-300 focus:border-purple-500 focus:ring-4 focus:ring-purple-200 focus:scale-105"
                   placeholder="••••••••"
                   {...register("password")}
                 />
@@ -144,10 +160,24 @@ export function LoginPage() {
 
               <button
                 type="submit"
-                className="w-full rounded-full bg-primary px-6 py-3 text-sm font-semibold text-white shadow-sm transition-transform hover:-translate-y-0.5 hover:bg-primary-dark disabled:cursor-not-allowed disabled:bg-primary/60"
+                className="btn-premium w-full rounded-2xl bg-gradient-to-r from-purple-600 via-pink-600 to-red-600 px-6 py-4 text-base font-black text-white shadow-2xl hover:shadow-[0_20px_60px_-15px_rgba(168,85,247,0.8)] disabled:cursor-not-allowed disabled:opacity-50 transition-all duration-500 transform hover:-translate-y-2 hover:scale-105"
+                style={{
+                  backgroundSize: '200% 100%',
+                  animation: isSubmitting ? 'none' : 'gradientShift 3s ease infinite'
+                }}
                 disabled={isSubmitting}
               >
-                {isSubmitting ? "Ingresando..." : "Ingresar"}
+                {isSubmitting ? (
+                  <span className="flex items-center justify-center gap-2">
+                    <span className="inline-block h-5 w-5 animate-spin rounded-full border-3 border-white border-r-transparent"></span>
+                    Ingresando...
+                  </span>
+                ) : (
+                  <span className="flex items-center justify-center gap-2">
+                    <span>🚀</span>
+                    Ingresar
+                  </span>
+                )}
               </button>
 
               <p className="text-center text-sm text-neutral-600">

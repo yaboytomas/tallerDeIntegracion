@@ -71,30 +71,42 @@ export function CartPage() {
   if (loading) {
     return (
       <section className="mx-auto max-w-5xl px-4 py-12 sm:px-6 lg:px-8">
-        <div className="text-center">Cargando carrito...</div>
+        <div className="text-center py-20">
+          <div className="inline-block h-16 w-16 animate-spin rounded-full border-4 border-solid border-purple-600 border-r-transparent"></div>
+          <p className="mt-6 text-lg font-semibold text-gradient">Cargando tu carrito...</p>
+        </div>
       </section>
     );
   }
 
   if (!cart || cart.items.length === 0) {
     return (
-      <section className="mx-auto max-w-5xl px-4 py-12 sm:px-6 lg:px-8">
-        <header className="mb-8">
-          <h1 className="text-3xl font-bold text-neutral-900">Carro de Compras</h1>
-          <p className="mt-2 text-sm text-neutral-600">
-            Guardamos tus productos con precios en CLP y stock garantizado antes de pagar.
+      <section className="mx-auto max-w-5xl px-4 py-12 sm:px-6 lg:px-8 animate-fade-in">
+        <header className="mb-12 text-center">
+          <h1 className="heading-artistic mb-4">🛒 Tu Carrito</h1>
+          <p className="mt-4 text-neutral-600 max-w-2xl mx-auto">
+            Guardamos tus productos con precios en CLP y stock garantizado
           </p>
         </header>
 
-        <div className="rounded-3xl border border-dashed border-neutral-300 bg-white p-10 text-center text-neutral-500">
-          <p className="text-sm">
-            Aún no has agregado productos. Explora nuestras categorías y encuentra lo que necesitas.
+        <div className="rounded-3xl border-4 border-dashed border-purple-300 bg-gradient-to-br from-purple-50 via-white to-pink-50 p-16 text-center shadow-xl animate-scale-in">
+          <div className="text-6xl mb-6 animate-float">🛍️</div>
+          <p className="text-lg text-neutral-700 font-semibold mb-2">
+            Tu carrito está vacío
+          </p>
+          <p className="text-neutral-500 mb-8">
+            Explora nuestras categorías y encuentra productos increíbles
           </p>
           <Link
             to="/productos"
-            className="mt-6 inline-flex items-center justify-center rounded-full bg-primary px-6 py-3 text-sm font-semibold text-white shadow-sm hover:bg-primary-dark"
+            className="btn-premium inline-flex items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-purple-600 via-pink-600 to-red-600 px-8 py-4 text-base font-bold text-white shadow-2xl hover:shadow-[0_20px_60px_-15px_rgba(168,85,247,0.6)] transition-all duration-500 transform hover:-translate-y-2 hover:scale-105"
+            style={{
+              backgroundSize: '200% 100%',
+              animation: 'gradientShift 3s ease infinite'
+            }}
           >
-            Ver catálogo
+            <span>✨</span>
+            Ver Catálogo
           </Link>
         </div>
       </section>
@@ -102,75 +114,84 @@ export function CartPage() {
   }
 
   return (
-    <section className="mx-auto max-w-5xl px-4 py-12 sm:px-6 lg:px-8">
-      <header className="mb-8">
-        <h1 className="text-3xl font-bold text-neutral-900">Carro de Compras</h1>
-        <p className="mt-2 text-sm text-neutral-600">
-          {cart.items.length} producto(s) en tu carrito
+    <section className="mx-auto max-w-5xl px-4 py-12 sm:px-6 lg:px-8 animate-fade-in">
+      <header className="mb-12 text-center">
+        <h1 className="heading-artistic mb-4">🛒 Tu Carrito</h1>
+        <p className="mt-4 text-lg">
+          <span className="badge-artistic inline-block">
+            {cart.items.length} {cart.items.length === 1 ? 'producto' : 'productos'}
+          </span>
         </p>
       </header>
 
       <div className="grid gap-8 lg:grid-cols-3">
         <div className="lg:col-span-2 space-y-4">
-          {cart.items.map((item) => (
+          {cart.items.map((item, index) => (
             <div
               key={item.id}
-              className="flex gap-4 rounded-lg border border-neutral-200 bg-white p-4 shadow-sm"
+              className="card-premium flex gap-4 rounded-2xl border-2 border-transparent bg-white p-6 shadow-xl animate-fade-in"
+              style={{
+                animationDelay: `${index * 100}ms`,
+                background: `linear-gradient(white, white) padding-box, linear-gradient(135deg, #667eea, #764ba2) border-box`
+              }}
             >
               {item.product.images && item.product.images.length > 0 && (
-                <img
-                  src={getImageUrl(item.product.images[0])}
-                  alt={item.product.name}
-                  className="h-24 w-24 rounded object-cover"
-                />
+                <div className="overflow-hidden rounded-xl bg-gradient-to-br from-purple-100 to-pink-100">
+                  <img
+                    src={getImageUrl(item.product.images[0])}
+                    alt={item.product.name}
+                    className="h-28 w-28 object-cover transition-transform duration-500 hover:scale-110"
+                  />
+                </div>
               )}
               <div className="flex-1">
                 <Link
                   to={`/productos/${item.product.slug}`}
-                  className="font-semibold text-neutral-900 hover:text-primary"
+                  className="font-bold text-lg text-neutral-900 hover:text-gradient transition-all"
                 >
                   {item.product.name}
                 </Link>
                 {item.variant && (
-                  <p className="text-sm text-neutral-600">
+                  <p className="text-sm font-semibold text-purple-600 mt-1">
                     {item.variant.name}: {item.variant.value}
                   </p>
                 )}
-                <p className="mt-1 text-sm text-neutral-500">SKU: {item.product.sku}</p>
-                <p className="mt-2 font-semibold text-neutral-900">
-                  {formatCLP(item.price)} c/u
+                <p className="mt-1 text-xs text-neutral-500 font-medium">SKU: {item.product.sku}</p>
+                <p className="mt-3 text-lg font-bold text-gradient">
+                  {formatCLP(item.price)} <span className="text-xs text-neutral-500 font-normal">c/u</span>
                 </p>
               </div>
               <div className="flex flex-col items-end justify-between">
                 <button
                   onClick={() => handleRemove(item.id)}
-                  className="text-red-600 hover:text-red-800"
+                  className="text-2xl font-bold text-red-500 hover:text-red-700 hover:scale-125 transition-all duration-300 hover:rotate-90"
                   disabled={updating === item.id}
+                  title="Eliminar producto"
                 >
                   ×
                 </button>
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-2 bg-gradient-to-r from-purple-50 to-pink-50 rounded-full p-1">
                   <button
                     onClick={() => handleQuantityChange(item.id, item.quantity - 1)}
                     disabled={updating === item.id || item.quantity <= 1}
-                    className="h-8 w-8 rounded border border-neutral-300 disabled:opacity-50"
+                    className="h-10 w-10 rounded-full bg-white border-2 border-purple-300 font-bold text-purple-600 hover:bg-purple-600 hover:text-white disabled:opacity-50 disabled:hover:bg-white disabled:hover:text-purple-600 transition-all duration-300 hover:scale-110"
                   >
                     −
                   </button>
-                  <span className="w-8 text-center text-sm font-medium">
+                  <span className="w-12 text-center text-base font-bold text-purple-900">
                     {item.quantity}
                   </span>
                   <button
                     onClick={() => handleQuantityChange(item.id, item.quantity + 1)}
                     disabled={updating === item.id || item.quantity >= item.stock}
-                    className="h-8 w-8 rounded border border-neutral-300 disabled:opacity-50"
+                    className="h-10 w-10 rounded-full bg-white border-2 border-purple-300 font-bold text-purple-600 hover:bg-purple-600 hover:text-white disabled:opacity-50 disabled:hover:bg-white disabled:hover:text-purple-600 transition-all duration-300 hover:scale-110"
                   >
                     +
                   </button>
                 </div>
-                <p className="mt-2 font-semibold text-neutral-900">
+                <div className="mt-3 price-artistic text-xl">
                   {formatCLP(item.subtotal)}
-                </p>
+                </div>
               </div>
             </div>
           ))}
