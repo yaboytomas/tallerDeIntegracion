@@ -2,6 +2,7 @@ import { Link } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { api } from "../../services/api";
 import type { HomeBanner, Category } from "../../types";
+import { getOptimizedImageUrl } from "../../utils/imageUrl";
 
 export function HomePage() {
   const [banners, setBanners] = useState<HomeBanner[]>([]);
@@ -79,10 +80,12 @@ export function HomePage() {
               <div className="relative group">
                 <div className="absolute -inset-2 bg-gradient-to-r from-blue-600 to-purple-600 rounded-3xl blur-2xl opacity-20 group-hover:opacity-30 transition-opacity"></div>
                 <img
-                  src={banners[0].image || "https://images.unsplash.com/photo-1503736334956-4c8f8e92946d?auto=format&fit=crop&w=1000&q=80"}
+                  src={getOptimizedImageUrl(banners[0].image, { width: 1200, quality: 85, format: 'auto' }) || "https://images.unsplash.com/photo-1503736334956-4c8f8e92946d?auto=format&fit=crop&w=1200&q=85"}
                   alt={banners[0].title}
                   className="relative aspect-[4/3] w-full rounded-3xl object-cover shadow-2xl lg:aspect-auto lg:h-[500px] transition-transform duration-500 group-hover:scale-[1.02]"
                   loading="eager"
+                  fetchPriority="high"
+                  decoding="async"
                 />
                 <div className="absolute bottom-4 left-4 rounded-2xl glass p-4 shadow-xl backdrop-blur-md animate-float">
                   <p className="text-xs font-semibold uppercase text-neutral-600">

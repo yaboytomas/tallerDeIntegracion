@@ -48,11 +48,6 @@ export function Header() {
           </Link>
         </div>
 
-        {/* Search Bar - Desktop */}
-        <div className="hidden lg:block flex-1 max-w-md mx-8">
-          <SearchAutocomplete placeholder="Buscar productos..." />
-        </div>
-
         <nav className="hidden items-center gap-8 lg:flex">
           {navItems.map((item, index) => (
             <NavLink
@@ -70,6 +65,11 @@ export function Header() {
             </NavLink>
           ))}
         </nav>
+
+        {/* Search Bar - Desktop */}
+        <div className="hidden lg:block flex-1 max-w-lg mx-6">
+          <SearchAutocomplete placeholder="Buscar productos..." />
+        </div>
 
         <div className="hidden items-center gap-3 lg:flex animate-fade-in">
           {isAuthenticated ? (
