@@ -26,7 +26,7 @@ export function Footer() {
                 JSP Detailing
               </span>
               <span className="text-xs font-semibold text-purple-600 uppercase tracking-wider">
-                Premium Auto Care
+                Premium
               </span>
             </div>
           </div>
