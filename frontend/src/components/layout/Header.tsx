@@ -71,9 +71,13 @@ export function Header() {
               {isAdmin && (
                 <Link
                   to="/admin"
-                  className="rounded-full border border-purple-200 bg-gradient-to-r from-purple-50 to-purple-100 px-4 py-2 text-sm font-medium text-purple-700 hover:border-purple-300 hover:shadow-md transition-all duration-300 hover:-translate-y-0.5"
+                  className="group relative flex h-10 w-10 items-center justify-center rounded-full border-2 border-purple-300 bg-gradient-to-br from-purple-100 to-purple-200 text-lg hover:border-purple-400 hover:shadow-lg transition-all duration-300 hover:-translate-y-0.5 hover:scale-110 hover:rotate-12"
+                  title="Admin Dashboard"
                 >
-                  Admin
+                  ⚙️
+                  <span className="absolute -bottom-8 left-1/2 -translate-x-1/2 whitespace-nowrap rounded-md bg-purple-900 px-2 py-1 text-xs font-medium text-white opacity-0 shadow-lg transition-opacity group-hover:opacity-100 pointer-events-none">
+                    Admin
+                  </span>
                 </Link>
               )}
               <Link
@@ -178,10 +182,11 @@ export function Header() {
                   {isAdmin && (
                     <Link
                       to="/admin"
-                      className="rounded-full border border-purple-200 px-4 py-2 text-center text-sm font-medium text-purple-700 hover:border-purple-300 hover:bg-purple-50"
+                      className="rounded-full border-2 border-purple-300 bg-gradient-to-r from-purple-100 to-purple-200 px-4 py-2 text-center text-sm font-bold text-purple-700 hover:border-purple-400 hover:bg-purple-300 flex items-center justify-center gap-2"
                       onClick={() => setIsMenuOpen(false)}
                     >
-                      Panel Admin
+                      <span className="text-lg">⚙️</span>
+                      <span>Admin Dashboard</span>
                     </Link>
                   )}
                   <Link
