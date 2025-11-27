@@ -1,9 +1,5 @@
 import mongoose from 'mongoose';
-import dotenv from 'dotenv';
 import { ContentPage } from '../models/ContentPage';
-
-// Load environment variables
-dotenv.config();
 
 const contentPages = [
   {
@@ -172,9 +168,49 @@ const contentPages = [
   },
 ];
 
-async function seedContentPages() {
+// Export function for automatic seeding on server startup
+export async function runContentPagesSeeder(): Promise<void> {
+  console.log('🔄 Checking content pages...');
   try {
-    // Connect to MongoDB
+    // Ensure DB connection
+    if (mongoose.connection.readyState !== 1) {
+      console.warn('⚠️ MongoDB not connected yet. Skipping content pages seed.');
+      return;
+    }
+
+    let createdCount = 0;
+    let existingCount = 0;
+
+    // Check and create each content page
+    for (const pageData of contentPages) {
+      const existingPage = await ContentPage.findOne({ slug: pageData.slug });
+
+      if (existingPage) {
+        existingCount++;
+      } else {
+        await ContentPage.create(pageData);
+        console.log(`✅ Created content page: ${pageData.slug}`);
+        createdCount++;
+      }
+    }
+
+    if (createdCount > 0) {
+      console.log(`\n✅ Content pages seeding completed! Created ${createdCount} new pages.`);
+    } else {
+      console.log(`✓ All ${existingCount} content pages already exist.`);
+    }
+  } catch (error) {
+    console.error('❌ Error seeding content pages:', error);
+    // Don't exit process on error, just log it
+  }
+}
+
+// Manual execution support (for npm run seed-content)
+async function seedContentPagesManual() {
+  try {
+    const dotenv = await import('dotenv');
+    dotenv.config();
+
     const mongoUri = process.env.MONGODB_URI;
     if (!mongoUri) {
       throw new Error('MONGODB_URI is not defined in environment variables');
@@ -183,19 +219,9 @@ async function seedContentPages() {
     await mongoose.connect(mongoUri);
     console.log('Connected to MongoDB');
 
-    // Check and create/update each content page
-    for (const pageData of contentPages) {
-      const existingPage = await ContentPage.findOne({ slug: pageData.slug });
+    await runContentPagesSeeder();
 
-      if (existingPage) {
-        console.log(`✓ Content page "${pageData.slug}" already exists`);
-      } else {
-        await ContentPage.create(pageData);
-        console.log(`✅ Created content page: ${pageData.slug}`);
-      }
-    }
-
-    console.log('\n✅ Content pages seeding completed!');
+    console.log('\n✅ Manual seeding completed!');
     process.exit(0);
   } catch (error) {
     console.error('Error seeding content pages:', error);
@@ -203,5 +229,8 @@ async function seedContentPages() {
   }
 }
 
-seedContentPages();
+// Only run manual execution if this file is run directly
+if (require.main === module) {
+  seedContentPagesManual();
+}
 

@@ -10,6 +10,7 @@ import { connectDB } from './config/database';
 import routes from './routes';
 import { securityHeaders, apiLimiter, sanitizeInput } from './middleware/security';
 import { errorHandler, notFoundHandler } from './middleware/errorHandler';
+import { runContentPagesSeeder } from './scripts/seedContentPages';
 
 // Load environment variables
 dotenv.config();
@@ -51,6 +52,13 @@ connectDB().then(async () => {
   } catch (error: any) {
     console.error('❌ Error migrating CartItem indexes:', error.message);
     console.error('Stack:', error.stack);
+  }
+  
+  // Seed content pages if they don't exist
+  try {
+    await runContentPagesSeeder();
+  } catch (error: any) {
+    console.error('❌ Error seeding content pages:', error.message);
   }
 });
 
