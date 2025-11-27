@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Link, NavLink, useNavigate } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
 import { useCart } from "../../context/CartContext";
+import { SearchAutocomplete } from "../search/SearchAutocomplete";
 
 const navItems = [
   { to: "/", label: "Inicio" },
@@ -45,6 +46,11 @@ export function Header() {
               </span>
             </div>
           </Link>
+        </div>
+
+        {/* Search Bar - Desktop */}
+        <div className="hidden lg:block flex-1 max-w-md mx-8">
+          <SearchAutocomplete placeholder="Buscar productos..." />
         </div>
 
         <nav className="hidden items-center gap-8 lg:flex">
@@ -158,6 +164,17 @@ export function Header() {
           className="lg:hidden animate-slide-in-right"
         >
           <nav className="space-y-1 border-t border-neutral-200 bg-white px-4 py-4 shadow-lg">
+            {/* Mobile Search */}
+            <div className="pb-4 border-b border-neutral-200 mb-2">
+              <SearchAutocomplete 
+                placeholder="Buscar productos..." 
+                onSearch={(query) => {
+                  navigate(`/productos?search=${encodeURIComponent(query)}`);
+                  setIsMenuOpen(false);
+                }}
+              />
+            </div>
+            
             {navItems.map((item) => (
               <NavLink
                 key={item.to}

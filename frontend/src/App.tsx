@@ -1,6 +1,7 @@
 import { RouterProvider } from "react-router-dom";
 import { AuthProvider } from "./context/AuthContext";
 import { CartProvider } from "./context/CartContext";
+import { CookieConsentBanner } from "./components/cookies/CookieConsentBanner";
 import { router } from "./routes/appRoutes";
 
 export default function App() {
@@ -8,6 +9,7 @@ export default function App() {
     <AuthProvider>
       <CartProvider>
         <RouterProvider router={router} />
+        <CookieConsentBanner />
       </CartProvider>
     </AuthProvider>
   );
