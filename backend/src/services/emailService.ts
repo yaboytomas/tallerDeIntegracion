@@ -2,7 +2,8 @@ import nodemailer from 'nodemailer';
 
 const frontendURL = process.env.FRONTEND_URL || 'http://localhost:5173';
 // Use Resend's test domain if domain is not verified (only works for verified emails)
-const emailFrom = process.env.EMAIL_FROM || 'noreply@jspdetailing.cl';
+// Default to verified domain: jsp.zabotec.com
+const emailFrom = process.env.EMAIL_FROM || 'noreply@jsp.zabotec.com';
 const useResendTestDomain = process.env.USE_RESEND_TEST_DOMAIN === 'true';
 
 // Determine email provider
@@ -101,14 +102,14 @@ async function sendEmail(to: string, subject: string, html: string): Promise<voi
           console.error('');
           console.error('🔧 SOLUTION:');
           console.error('   1. Go to https://resend.com/domains');
-          console.error('   2. Verify your domain: jspdetailing.cl');
+          console.error('   2. Verify your domain: jsp.zabotec.com');
           console.error('   3. Make sure DNS records are correctly configured');
           console.error('   4. Wait for domain verification to complete');
-          console.error('   5. Once verified, emails will work with noreply@jspdetailing.cl');
+          console.error('   5. Once verified, emails will work with noreply@jsp.zabotec.com');
           console.error('');
           console.error('⚠️  NOTE: The test domain (onboarding@resend.dev) only works if you have a verified domain.');
           console.error('⚠️  If domain is not verified, you can only send to your account email.');
-          throw new Error(`Domain not verified in Resend. Please verify jspdetailing.cl at https://resend.com/domains`);
+          throw new Error(`Domain not verified in Resend. Please verify jsp.zabotec.com at https://resend.com/domains`);
         }
         
         // Check for other specific Resend errors
@@ -149,11 +150,11 @@ async function sendEmail(to: string, subject: string, html: string): Promise<voi
         console.error('');
         console.error('🔧 SOLUTION:');
         console.error('   1. Go to https://resend.com/domains');
-        console.error('   2. Verify your domain: jspdetailing.cl');
+        console.error('   2. Verify your domain: jsp.zabotec.com');
         console.error('   3. Make sure DNS records are correctly configured');
         console.error('   4. Wait for domain verification to complete');
-        console.error('   5. Once verified, emails will work with noreply@jspdetailing.cl');
-        throw new Error(`Domain not verified in Resend. Please verify jspdetailing.cl at https://resend.com/domains`);
+        console.error('   5. Once verified, emails will work with noreply@jsp.zabotec.com');
+        throw new Error(`Domain not verified in Resend. Please verify jsp.zabotec.com at https://resend.com/domains`);
       }
       
       console.error('❌ Error in Resend sendEmail:', error);
