@@ -74,10 +74,25 @@ async function sendEmail(to: string, subject: string, html: string): Promise<voi
     let actualFrom = useResendTestDomain ? 'onboarding@resend.dev' : emailFrom;
     
     try {
-      console.log(`📧 Attempting to send email via Resend to ${to} from ${actualFrom}`);
+      // Validate recipient email
+      if (!to || to.trim() === '') {
+        throw new Error('Recipient email address is required');
+      }
+      
+      console.log(`📧 Attempting to send email via Resend`);
+      console.log(`📧 TO (recipient): ${to}`);
+      console.log(`📧 FROM (sender): ${actualFrom}`);
+      console.log(`📧 SUBJECT: ${subject}`);
+      
+      // Ensure 'to' is a string, not an array, and is the correct email
+      const recipientEmail = Array.isArray(to) ? to[0] : to;
+      if (!recipientEmail || recipientEmail.trim() === '') {
+        throw new Error('Invalid recipient email address');
+      }
+      
       const result = await resend.emails.send({
         from: actualFrom,
-        to,
+        to: recipientEmail, // Explicitly use the recipient email
         subject,
         html,
       });
@@ -112,12 +127,31 @@ async function sendEmail(to: string, subject: string, html: string): Promise<voi
           throw new Error(`Domain not verified in Resend. Please verify jsp.zabotec.com at https://resend.com/domains`);
         }
         
+        // Check for domain not verified error (specific message from Resend)
+        if (errorMessage.includes('domain is not verified') || 
+            errorMessage.includes('is not verified. Please, add and verify')) {
+          const domainMatch = errorMessage.match(/The (.+?) domain is not verified/);
+          const domain = domainMatch ? domainMatch[1] : actualFrom.split('@')[1];
+          console.error('🚨 CRITICAL: Domain is NOT verified in Resend!');
+          console.error(`🚨 Attempted domain: ${domain}`);
+          console.error(`🚨 Current FROM address: ${actualFrom}`);
+          console.error(`🚨 Attempted TO address: ${to}`);
+          console.error('');
+          console.error('🔧 SOLUTION:');
+          console.error('   1. Go to https://resend.com/domains');
+          console.error('   2. Verify the domain that matches your FROM address');
+          console.error(`   3. Your FROM address is: ${actualFrom}`);
+          console.error(`   4. The domain should be: ${actualFrom.split('@')[1]}`);
+          console.error('   5. Make sure DNS records are correctly configured in Resend');
+          console.error('   6. OR set EMAIL_FROM environment variable to use your verified domain');
+          console.error(`   7. Example: EMAIL_FROM=noreply@jsp.zabotec.com (if that's your verified domain)`);
+          throw new Error(`Domain ${domain} is not verified in Resend. Please verify it at https://resend.com/domains or set EMAIL_FROM to use your verified domain.`);
+        }
+        
         // Check for other specific Resend errors
         if (errorMessage.includes('Invalid `to` field') || 
-            errorMessage.includes('not verified') ||
-            errorMessage.includes('domain not verified') ||
             errorMessage.includes('email not verified')) {
-          console.error('🚨 CRITICAL: Email address or domain not verified in Resend!');
+          console.error('🚨 CRITICAL: Email address not verified in Resend!');
           console.error('🚨 This email will NOT be sent.');
           throw new Error(`Email not verified in Resend: ${to}`);
         }
@@ -225,11 +259,18 @@ export async function sendVerificationEmail(_userId: string, email: string, toke
 
   try {
     const actualFrom = useResendTestDomain ? 'onboarding@resend.dev' : emailFrom;
-    console.log(`📧 Preparing to send verification email to ${email}`);
+    console.log(`📧 Preparing to send verification email`);
+    console.log(`📧 TO (recipient): ${email}`);
+    console.log(`📧 FROM (sender): ${actualFrom}${useResendTestDomain ? ' (Resend test domain)' : ''}`);
     console.log(`📧 Using email service: ${resend ? 'Resend' : transporter ? 'Nodemailer' : 'None'}`);
-    console.log(`📧 Email from address: ${actualFrom}${useResendTestDomain ? ' (Resend test domain)' : ''}`);
     console.log(`📧 Frontend URL: ${frontendURL}`);
     console.log(`📧 Verification URL: ${verificationURL}`);
+    
+    // Verify the email parameter is correct
+    if (!email || email.trim() === '') {
+      console.error('❌ ERROR: Email parameter is empty or invalid!');
+      throw new Error('Email address is required');
+    }
     
     await sendEmail(email, 'Verifica tu correo electrónico - JSP Detailing', html);
     console.log(`✅ Verification email sent successfully to ${email}`);
