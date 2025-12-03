@@ -16,6 +16,10 @@ if (useResend) {
     const { Resend } = require('resend');
     resend = new Resend(process.env.RESEND_API_KEY);
     console.log('📧 Email service configured: Resend');
+    console.log(`📧 Email FROM address: ${emailFrom}`);
+    console.log(`📧 Frontend URL: ${frontendURL}`);
+    console.log(`⚠️  IMPORTANT: Make sure the domain "${emailFrom.split('@')[1]}" is verified in Resend dashboard!`);
+    console.log(`⚠️  If domain is not verified, emails will be accepted but NOT sent.`);
   } catch (error) {
     console.error('❌ Resend package not installed. Run: npm install resend');
   }
@@ -52,12 +56,40 @@ else {
 async function sendEmail(to: string, subject: string, html: string): Promise<void> {
   if (resend) {
     // Resend
-    await resend.emails.send({
-      from: emailFrom,
-      to,
-      subject,
-      html,
-    });
+    try {
+      console.log(`📧 Attempting to send email via Resend to ${to} from ${emailFrom}`);
+      const result = await resend.emails.send({
+        from: emailFrom,
+        to,
+        subject,
+        html,
+      });
+      
+      // Log the response for debugging
+      console.log(`📧 Resend API response:`, JSON.stringify(result, null, 2));
+      
+      // Check if there's an error in the response
+      if (result.error) {
+        console.error('❌ Resend API returned an error:', result.error);
+        throw new Error(`Resend API error: ${JSON.stringify(result.error)}`);
+      }
+      
+      // Check if email was successfully queued
+      if (result.data && result.data.id) {
+        console.log(`✅ Email queued successfully with ID: ${result.data.id}`);
+      } else {
+        console.warn('⚠️  Resend response missing email ID. Email may not have been sent.');
+      }
+    } catch (error: any) {
+      console.error('❌ Error in Resend sendEmail:', error);
+      console.error('❌ Error details:', {
+        message: error?.message,
+        name: error?.name,
+        statusCode: error?.statusCode,
+        response: error?.response,
+      });
+      throw error;
+    }
   } else if (transporter) {
     // Nodemailer
     const sendPromise = transporter.sendMail({
@@ -116,11 +148,21 @@ export async function sendVerificationEmail(_userId: string, email: string, toke
   `;
 
   try {
+    console.log(`📧 Preparing to send verification email to ${email}`);
+    console.log(`📧 Using email service: ${resend ? 'Resend' : transporter ? 'Nodemailer' : 'None'}`);
+    console.log(`📧 Email from address: ${emailFrom}`);
+    console.log(`📧 Frontend URL: ${frontendURL}`);
+    console.log(`📧 Verification URL: ${verificationURL}`);
+    
     await sendEmail(email, 'Verifica tu correo electrónico - JSP Detailing', html);
-    console.log(`✅ Verification email sent to ${email}`);
-  } catch (error) {
+    console.log(`✅ Verification email sent successfully to ${email}`);
+  } catch (error: any) {
     console.error('❌ Error sending verification email:', error);
-    console.warn('Registration completed but email sending failed. User can request resend.');
+    console.error('❌ Error stack:', error?.stack);
+    console.error('❌ Full error object:', JSON.stringify(error, Object.getOwnPropertyNames(error), 2));
+    console.warn('⚠️  Registration completed but email sending failed. User can request resend.');
+    // Don't throw - allow registration to complete even if email fails
+    // The user can request a resend later
   }
 }
 
