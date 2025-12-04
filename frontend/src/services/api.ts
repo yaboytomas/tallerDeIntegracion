@@ -149,8 +149,11 @@ class ApiService {
   }
 
   // Category endpoints
-  async getCategories(parentId?: string): Promise<Category[]> {
-    const response = await this.api.get('/categories', { params: { parentId } });
+  async getCategories(params?: { parentId?: string; featured?: boolean }): Promise<Category[]> {
+    const queryParams: any = {};
+    if (params?.parentId !== undefined) queryParams.parentId = params.parentId;
+    if (params?.featured !== undefined) queryParams.featured = params.featured.toString();
+    const response = await this.api.get('/categories', { params: queryParams });
     return response.data;
   }
 

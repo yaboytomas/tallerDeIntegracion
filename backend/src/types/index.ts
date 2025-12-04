@@ -63,6 +63,7 @@ export interface ICategory extends Document {
   parentId?: string;
   order: number;
   status: 'active' | 'inactive';
+  featured: boolean;
   createdAt: Date;
 }
 

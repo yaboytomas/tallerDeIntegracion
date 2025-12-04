@@ -49,6 +49,7 @@ export interface Category {
   parentId?: string;
   order: number;
   status: 'active' | 'inactive';
+  featured?: boolean;
 }
 
 // Product Variant types

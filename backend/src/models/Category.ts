@@ -37,6 +37,10 @@ const categorySchema = new Schema<ICategory>(
       enum: ['active', 'inactive'],
       default: 'active',
     },
+    featured: {
+      type: Boolean,
+      default: false,
+    },
   },
   {
     timestamps: { createdAt: true, updatedAt: false },
@@ -47,6 +51,7 @@ const categorySchema = new Schema<ICategory>(
 categorySchema.index({ slug: 1 });
 categorySchema.index({ parentId: 1 });
 categorySchema.index({ status: 1 });
+categorySchema.index({ featured: 1 });
 
 export const Category = mongoose.model<ICategory>('Category', categorySchema);
 

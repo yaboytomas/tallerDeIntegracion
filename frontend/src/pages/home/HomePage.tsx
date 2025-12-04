@@ -28,9 +28,9 @@ export function HomePage() {
 
   const loadCategories = async () => {
     try {
-      const data = await api.getCategories();
-      // Solo mostrar las primeras 3 categorías activas
-      setCategories(data.filter((c: Category) => c.status === 'active').slice(0, 3));
+      // Obtener solo las categorías destacadas
+      const data = await api.getCategories({ featured: true });
+      setCategories(data.filter((c: Category) => c.status === 'active'));
     } catch (error) {
       console.error("Error loading categories:", error);
     } finally {

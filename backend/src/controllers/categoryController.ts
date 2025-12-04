@@ -7,7 +7,7 @@ import { CustomError } from '../middleware/errorHandler';
  */
 export async function getCategories(req: Request, res: Response): Promise<void> {
   try {
-    const { parentId, status } = req.query;
+    const { parentId, status, featured } = req.query;
 
     const query: any = {};
 
@@ -21,6 +21,10 @@ export async function getCategories(req: Request, res: Response): Promise<void> 
       query.status = status;
     } else {
       query.status = 'active';
+    }
+
+    if (featured === 'true') {
+      query.featured = true;
     }
 
     const categories = await Category.find(query)

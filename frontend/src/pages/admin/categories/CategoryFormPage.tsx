@@ -12,6 +12,7 @@ interface CategoryFormData {
   parentId: string;
   order: number;
   status: 'active' | 'inactive';
+  featured: boolean;
 }
 
 export function CategoryFormPage() {
@@ -33,6 +34,7 @@ export function CategoryFormPage() {
     defaultValues: {
       status: 'active',
       order: 0,
+      featured: false,
     },
   });
 
@@ -68,6 +70,7 @@ export function CategoryFormPage() {
           parentId: category.parentId || '',
           order: category.order,
           status: category.status,
+          featured: category.featured || false,
         });
         setExistingImage(category.image || null);
       }
@@ -198,6 +201,18 @@ export function CategoryFormPage() {
                 <option value="active">Activa</option>
                 <option value="inactive">Inactiva</option>
               </select>
+            </div>
+
+            <div className="flex items-center gap-2">
+              <input
+                type="checkbox"
+                id="featured"
+                {...register('featured')}
+                className="h-4 w-4 rounded border-neutral-300 text-blue-600 focus:ring-blue-500"
+              />
+              <label htmlFor="featured" className="text-sm font-medium text-neutral-700">
+                Mostrar en página principal (Categorías Destacadas)
+              </label>
             </div>
           </div>
         </div>

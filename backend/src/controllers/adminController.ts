@@ -273,7 +273,7 @@ export async function getAdminCategories(_req: Request, res: Response): Promise<
 
 export async function createCategory(req: AuthRequest, res: Response): Promise<void> {
   try {
-    const { name, description, parentId, order = 0, status = 'active' } = req.body;
+    const { name, description, parentId, order = 0, status = 'active', featured = false } = req.body;
 
     if (!name) {
       throw new CustomError('Nombre de categoría requerido', 400);
@@ -293,6 +293,7 @@ export async function createCategory(req: AuthRequest, res: Response): Promise<v
       parentId: parentId || null,
       order: parseInt(order, 10),
       status,
+      featured: featured === true || featured === 'true',
       image,
     });
 
@@ -325,6 +326,11 @@ export async function updateCategory(req: AuthRequest, res: Response): Promise<v
 
     if (req.file) {
       updateData.image = req.file.path;
+    }
+
+    // Convert featured to boolean if present
+    if (updateData.featured !== undefined) {
+      updateData.featured = updateData.featured === true || updateData.featured === 'true';
     }
 
     const category = await Category.findByIdAndUpdate(id, updateData, {
