@@ -68,15 +68,15 @@ export function AboutPage() {
               </div>
               <div className="p-3 rounded-xl hover:bg-purple-50 transition-all">
                 <dt className="font-black text-purple-900 text-xs uppercase tracking-wide">📍 Dirección</dt>
-                <dd className="mt-1 font-semibold">Av. Las Palmeras 1234, Huechuraba, Santiago</dd>
+                <dd className="mt-1 font-semibold">Adelaida 4042, Maipú</dd>
               </div>
               <div className="p-3 rounded-xl hover:bg-purple-50 transition-all">
                 <dt className="font-black text-purple-900 text-xs uppercase tracking-wide">📞 Teléfono</dt>
-                <dd className="mt-1 font-semibold">+56 9 1234 5678</dd>
+                <dd className="mt-1 font-semibold">+56930828558</dd>
               </div>
               <div className="p-3 rounded-xl hover:bg-purple-50 transition-all">
                 <dt className="font-black text-purple-900 text-xs uppercase tracking-wide">📧 Email</dt>
-                <dd className="mt-1 font-semibold">contacto@jspdetailing.cl</dd>
+                <dd className="mt-1 font-semibold">jspdetailing627@gmail.com</dd>
               </div>
             </dl>
           </div>
@@ -218,15 +218,15 @@ export function AboutPage() {
             </div>
             <div>
               <dt className="font-medium text-neutral-700">Dirección comercial</dt>
-              <dd>Av. Las Palmeras 1234, Huechuraba, Santiago</dd>
+              <dd>Adelaida 4042, Maipú</dd>
             </div>
             <div>
               <dt className="font-medium text-neutral-700">Teléfono</dt>
-              <dd>+56 9 1234 5678</dd>
+              <dd>+56930828558</dd>
             </div>
             <div>
               <dt className="font-medium text-neutral-700">Correo electrónico</dt>
-              <dd>contacto@jspdetailing.cl</dd>
+              <dd>jspdetailing627@gmail.com</dd>
             </div>
           </dl>
         </div>

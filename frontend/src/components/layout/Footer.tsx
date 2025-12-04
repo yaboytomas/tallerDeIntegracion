@@ -35,13 +35,33 @@ export function Footer() {
           </p>
           <ul className="mt-6 space-y-2 text-sm text-neutral-600">
             <li className="flex items-center gap-2">
-              <span className="text-purple-600">📍</span> Av. Las Palmeras 1234, Santiago
+              <span className="text-purple-600">📍</span>
+              <a 
+                href="https://maps.google.com/?q=Adelaida+4042,+Maipú,+Chile" 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="hover:text-purple-600 transition-colors"
+              >
+                Adelaida 4042, Maipú
+              </a>
             </li>
             <li className="flex items-center gap-2">
-              <span className="text-purple-600">📞</span> +56 9 1234 5678
+              <span className="text-purple-600">📞</span>
+              <a 
+                href="tel:+56930828558" 
+                className="hover:text-purple-600 transition-colors"
+              >
+                +56930828558
+              </a>
             </li>
             <li className="flex items-center gap-2">
-              <span className="text-purple-600">📧</span> contacto@jspdetailing.cl
+              <span className="text-purple-600">📧</span>
+              <a 
+                href="mailto:jspdetailing627@gmail.com" 
+                className="hover:text-purple-600 transition-colors"
+              >
+                jspdetailing627@gmail.com
+              </a>
             </li>
           </ul>
         </div>

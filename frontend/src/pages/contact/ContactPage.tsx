@@ -186,34 +186,24 @@ export function ContactPage() {
               <span className="text-2xl">📱</span>
               <div>
                 <div className="font-bold text-purple-900">Teléfono</div>
-                <div className="text-sm mt-1">+56 9 1234 5678</div>
+                <div className="text-sm mt-1">+56930828558</div>
                 <div className="text-xs text-neutral-500 mt-1">
                   Lun-Vie 09:00 a 18:00
                 </div>
               </div>
             </li>
             <li className="flex items-start gap-3 p-3 rounded-xl hover:bg-purple-50 transition-all">
-              <span className="text-2xl">💼</span>
+              <span className="text-2xl">📧</span>
               <div>
-                <div className="font-bold text-purple-900">Correo Ventas</div>
-                <div className="text-sm mt-1">ventas@jspdetailing.cl</div>
-              </div>
-            </li>
-            <li className="flex items-start gap-3 p-3 rounded-xl hover:bg-purple-50 transition-all">
-              <span className="text-2xl">🛠️</span>
-              <div>
-                <div className="font-bold text-purple-900">Correo Postventa</div>
-                <div className="text-sm mt-1">postventa@jspdetailing.cl</div>
+                <div className="font-bold text-purple-900">Correo Electrónico</div>
+                <div className="text-sm mt-1">jspdetailing627@gmail.com</div>
               </div>
             </li>
             <li className="flex items-start gap-3 p-3 rounded-xl hover:bg-purple-50 transition-all">
               <span className="text-2xl">📍</span>
               <div>
                 <div className="font-bold text-purple-900">Dirección</div>
-                <div className="text-sm mt-1">Av. Las Palmeras 1234</div>
-                <div className="text-xs text-neutral-500 mt-1">
-                  Huechuraba, Santiago
-                </div>
+                <div className="text-sm mt-1">Adelaida 4042, Maipú</div>
               </div>
             </li>
           </ul>

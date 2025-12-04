@@ -61,24 +61,10 @@ const contentPages = [
     slug: 'warranty-policy',
     title: 'Garantía Legal',
     content: `
-      <h2>Garantía Legal (Ley 19.496)</h2>
-      <p>Todos los productos cuentan con 3 meses de garantía legal según Ley 19.496 de Protección de los Derechos de los Consumidores.</p>
-      
-      <h2>Cobertura</h2>
-      <p>La garantía cubre fallas de fabricación, defectos de materiales o cualquier desperfecto no atribuible al uso normal del producto.</p>
-      
-      <h2>Opciones de Garantía</h2>
-      <p>En caso de falla comprobada, puedes elegir entre:</p>
-      <ul>
-        <li>Cambio del producto por uno nuevo</li>
-        <li>Reparación del producto</li>
-        <li>Devolución del dinero pagado</li>
-      </ul>
-      
-      <h2>Cómo Hacer Efectiva la Garantía</h2>
-      <p>Para gestionar la garantía, contáctanos con tu número de orden y evidencia fotográfica del problema a garantia@jspdetailing.cl.</p>
+      <h2>Garantía Legal | JSP Detailing</h2>
+      <p>En JSP Detailing garantizamos plenamente tus derechos como consumidor en conformidad con la legislación chilena vigente (Ley N° 21.398), por lo que si alguno de los productos adquiridos en nuestra tienda presenta fallas de fabricación, defectos de materiales o no es apto para el uso al que está destinado dentro de los 6 meses siguientes a la fecha de recepción, tienes la libertad de ejercer tu derecho a la garantía legal eligiendo entre tres opciones: la reparación gratuita del producto, el cambio por uno nuevo o la devolución íntegra del dinero, siempre y cuando la falla no se deba a un uso indebido o descuido por parte del usuario; para hacer efectivo este beneficio, es indispensable que te comuniques directamente con nosotros a través de nuestro formulario de contacto o correo electrónico oficial presentando tu comprobante de compra (boleta o factura), tras lo cual coordinaremos la recepción del producto para su evaluación técnica y la ejecución de la solución que hayas seleccionado.</p>
     `,
-    metaDescription: 'Garantía legal de productos en JSP Detailing según Ley 19.496 del consumidor.',
+    metaDescription: 'Garantía legal de productos en JSP Detailing según Ley N° 21.398 del consumidor.',
   },
   {
     slug: 'privacy-policy',
@@ -180,13 +166,33 @@ export async function runContentPagesSeeder(): Promise<void> {
 
     let createdCount = 0;
     let existingCount = 0;
+    let updatedCount = 0;
 
-    // Check and create each content page
+    // Check and create/update each content page
     for (const pageData of contentPages) {
       const existingPage = await ContentPage.findOne({ slug: pageData.slug });
 
       if (existingPage) {
-        existingCount++;
+        // Special case: Update warranty-policy if it exists (to update the legal guarantee text)
+        if (pageData.slug === 'warranty-policy') {
+          const needsUpdate = 
+            existingPage.title !== pageData.title ||
+            existingPage.content !== pageData.content ||
+            existingPage.metaDescription !== pageData.metaDescription;
+          
+          if (needsUpdate) {
+            existingPage.title = pageData.title;
+            existingPage.content = pageData.content;
+            existingPage.metaDescription = pageData.metaDescription;
+            await existingPage.save();
+            console.log(`🔄 Updated content page: ${pageData.slug}`);
+            updatedCount++;
+          } else {
+            existingCount++;
+          }
+        } else {
+          existingCount++;
+        }
       } else {
         await ContentPage.create(pageData);
         console.log(`✅ Created content page: ${pageData.slug}`);
@@ -194,10 +200,13 @@ export async function runContentPagesSeeder(): Promise<void> {
       }
     }
 
-    if (createdCount > 0) {
-      console.log(`\n✅ Content pages seeding completed! Created ${createdCount} new pages.`);
+    if (createdCount > 0 || updatedCount > 0) {
+      const messages = [];
+      if (createdCount > 0) messages.push(`Created ${createdCount} new pages`);
+      if (updatedCount > 0) messages.push(`Updated ${updatedCount} pages`);
+      console.log(`\n✅ Content pages seeding completed! ${messages.join(', ')}.`);
     } else {
-      console.log(`✓ All ${existingCount} content pages already exist.`);
+      console.log(`✓ All ${existingCount} content pages already exist and are up to date.`);
     }
   } catch (error) {
     console.error('❌ Error seeding content pages:', error);

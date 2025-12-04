@@ -7,7 +7,7 @@ import type { ContentPage } from "../../types";
 const policySlugs = [
   { id: "envios", slug: "shipping-policy", title: "Política de envíos", defaultContent: "Realizamos despachos a todo Chile mediante Chilexpress, Starken, Bluexpress y Correos Chile." },
   { id: "devoluciones", slug: "return-policy", title: "Cambios y devoluciones", defaultContent: "Tienes 10 días corridos desde la recepción para solicitar cambios o devoluciones." },
-  { id: "garantia", slug: "warranty-policy", title: "Garantía legal", defaultContent: "Todos los productos cuentan con 3 meses de garantía legal según Ley 19.496." },
+  { id: "garantia", slug: "warranty-policy", title: "Garantía legal", defaultContent: "En JSP Detailing garantizamos plenamente tus derechos como consumidor en conformidad con la legislación chilena vigente (Ley N° 21.398), por lo que si alguno de los productos adquiridos en nuestra tienda presenta fallas de fabricación, defectos de materiales o no es apto para el uso al que está destinado dentro de los 6 meses siguientes a la fecha de recepción, tienes la libertad de ejercer tu derecho a la garantía legal eligiendo entre tres opciones: la reparación gratuita del producto, el cambio por uno nuevo o la devolución íntegra del dinero, siempre y cuando la falla no se deba a un uso indebido o descuido por parte del usuario; para hacer efectivo este beneficio, es indispensable que te comuniques directamente con nosotros a través de nuestro formulario de contacto o correo electrónico oficial presentando tu comprobante de compra (boleta o factura), tras lo cual coordinaremos la recepción del producto para su evaluación técnica y la ejecución de la solución que hayas seleccionado." },
   { id: "privacidad", slug: "privacy-policy", title: "Política de privacidad", defaultContent: "JSP Detailing cumple con la Ley 19.628 sobre protección de datos personales." },
   { id: "terminos", slug: "terms-conditions", title: "Términos y condiciones", defaultContent: "Al comprar en nuestro sitio aceptas los presentes términos y condiciones." },
   { id: "cookies", slug: "cookie-policy", title: "Preferencias de cookies", defaultContent: "Utilizamos cookies esenciales para el funcionamiento del sitio." },
@@ -109,12 +109,23 @@ export function PoliciesPage() {
                 </div>
               </div>
               
-              {/* Si hay contenido desde la BD, usarlo */}
-              {policy && policy.content ? (
+              {/* Si hay contenido desde la BD, usarlo (excepto para garantía que siempre usa el hardcoded) */}
+              {policy && policy.content && policyDef.id !== 'garantia' ? (
                 <div 
                   className="prose prose-neutral prose-headings:text-gradient prose-headings:font-bold prose-p:text-neutral-700 prose-p:leading-relaxed mt-6 max-w-none"
                   dangerouslySetInnerHTML={{ __html: policy.content }}
                 />
+              ) : policyDef.id === 'garantia' ? (
+                /* Contenido hardcoded para garantía legal */
+                <div className="mt-6">
+                  <div 
+                    className="prose prose-neutral prose-headings:text-gradient prose-headings:font-bold prose-p:text-neutral-700 prose-p:leading-relaxed max-w-none"
+                    dangerouslySetInnerHTML={{ __html: `
+                      <h2>Garantía Legal | JSP Detailing</h2>
+                      <p>En JSP Detailing garantizamos plenamente tus derechos como consumidor en conformidad con la legislación chilena vigente (Ley N° 21.398), por lo que si alguno de los productos adquiridos en nuestra tienda presenta fallas de fabricación, defectos de materiales o no es apto para el uso al que está destinado dentro de los 6 meses siguientes a la fecha de recepción, tienes la libertad de ejercer tu derecho a la garantía legal eligiendo entre tres opciones: la reparación gratuita del producto, el cambio por uno nuevo o la devolución íntegra del dinero, siempre y cuando la falla no se deba a un uso indebido o descuido por parte del usuario; para hacer efectivo este beneficio, es indispensable que te comuniques directamente con nosotros a través de nuestro formulario de contacto o correo electrónico oficial presentando tu comprobante de compra (boleta o factura), tras lo cual coordinaremos la recepción del producto para su evaluación técnica y la ejecución de la solución que hayas seleccionado.</p>
+                    ` }}
+                  />
+                </div>
               ) : (
                 /* Fallback: contenido por defecto */
                 <div className="mt-6">
