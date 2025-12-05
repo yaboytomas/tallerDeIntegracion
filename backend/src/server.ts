@@ -75,25 +75,22 @@ const allowedOrigins = [
   'http://localhost:5173',
 ].filter(Boolean);
 
-// Handle OPTIONS preflight requests manually before CORS middleware
-app.options('*', (req, res) => {
-  const origin = req.headers.origin;
-  
-  // Always respond to OPTIONS, but only set CORS headers if origin is allowed
-  if (origin && allowedOrigins.includes(origin)) {
-    res.header('Access-Control-Allow-Origin', origin);
-    res.header('Access-Control-Allow-Credentials', 'true');
-    res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, PATCH, OPTIONS');
-    res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization, x-session-id, X-Session-Id');
-    res.header('Access-Control-Max-Age', '86400'); // 24 hours
-    res.sendStatus(204);
-  } else if (!origin) {
-    // No origin header (same-origin request or non-browser client)
+// Handle OPTIONS preflight requests - must be before CORS middleware
+app.use((req, res, next) => {
+  if (req.method === 'OPTIONS') {
+    const origin = req.headers.origin;
+    
+    // Always respond to OPTIONS, but only set CORS headers if origin is allowed
+    if (origin && allowedOrigins.includes(origin)) {
+      res.header('Access-Control-Allow-Origin', origin);
+      res.header('Access-Control-Allow-Credentials', 'true');
+      res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, PATCH, OPTIONS');
+      res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization, x-session-id, X-Session-Id');
+      res.header('Access-Control-Max-Age', '86400'); // 24 hours
+    }
     res.sendStatus(204);
   } else {
-    // Origin not allowed - still respond but without CORS headers
-    // This prevents the error handler from catching it
-    res.sendStatus(204);
+    next();
   }
 });
 
@@ -113,8 +110,6 @@ app.use(cors({
     if (allowedOrigins.includes(origin)) {
       callback(null, true);
     } else {
-      // For OPTIONS requests, we should still allow them to proceed with CORS headers
-      // The actual request will be blocked, but preflight should succeed
       if (process.env.NODE_ENV === 'development') {
         console.warn('CORS blocked origin:', origin);
       }
