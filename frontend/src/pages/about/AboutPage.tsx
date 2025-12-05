@@ -137,19 +137,6 @@ export function AboutPage() {
                   @jspdetailing.cl
                 </a>
               </li>
-              <li className="flex items-center gap-3 p-3 rounded-xl hover:bg-pink-50 transition-all group">
-                <div className="h-10 w-10 flex items-center justify-center rounded-xl bg-gradient-to-br from-red-500 to-red-600 text-white font-black text-xs shadow-md group-hover:scale-110 transition-transform">
-                  YT
-                </div>
-                <a
-                  href="https://www.youtube.com"
-                  target="_blank"
-                  rel="noreferrer"
-                  className="font-bold text-neutral-900 hover:text-gradient transition-all"
-                >
-                  JSP Detailing Chile
-                </a>
-              </li>
             </ul>
           </div>
         </article>
@@ -274,17 +261,6 @@ export function AboutPage() {
                 className="text-primary hover:underline"
               >
                 @jspdetailing.cl
-              </a>
-            </li>
-            <li>
-              YouTube:{" "}
-              <a
-                href="https://www.youtube.com"
-                target="_blank"
-                rel="noreferrer"
-                className="text-primary hover:underline"
-              >
-                JSP Detailing Chile
               </a>
             </li>
           </ul>
