@@ -207,6 +207,9 @@ export function ProductFormPage() {
               {errors.description && (
                 <p className="mt-1 text-sm text-red-600">{errors.description.message}</p>
               )}
+              <p className="mt-1 text-xs text-neutral-500">
+                ✓ Los saltos de línea se preservarán automáticamente. También puedes usar HTML como &lt;br&gt; para saltos de línea o &lt;b&gt; para negrita.
+              </p>
             </div>
 
             <div className="grid grid-cols-2 gap-4">

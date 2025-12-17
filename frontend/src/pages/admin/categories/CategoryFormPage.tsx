@@ -143,6 +143,9 @@ export function CategoryFormPage() {
                 rows={4}
                 className="mt-1 w-full rounded-md border border-neutral-300 px-3 py-2 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
               />
+              <p className="mt-1 text-xs text-neutral-500">
+                ✓ Los saltos de línea se preservarán automáticamente.
+              </p>
             </div>
 
             <div className="grid grid-cols-2 gap-4">

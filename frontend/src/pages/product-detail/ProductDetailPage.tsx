@@ -4,6 +4,7 @@ import { api } from "../../services/api";
 import { useCart } from "../../context/CartContext";
 import { getImageUrl } from "../../utils/imageUrl";
 import { formatCLP, formatPriceWithIVABreakdown } from "../../utils/currency";
+import { formatTextWithNewlines } from "../../utils/textFormat";
 import type { Product, ProductVariant } from "../../types";
 
 export function ProductDetailPage() {
@@ -247,7 +248,7 @@ export function ProductDetailPage() {
             <h2 className="mb-4 font-semibold text-neutral-900">Descripción</h2>
             <div
               className="prose prose-sm max-w-none text-neutral-600"
-              dangerouslySetInnerHTML={{ __html: product.description }}
+              dangerouslySetInnerHTML={{ __html: formatTextWithNewlines(product.description) }}
             />
           </div>
         </div>

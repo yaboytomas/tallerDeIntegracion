@@ -215,7 +215,7 @@ export function HomePage() {
                     <h3 className="text-2xl font-black text-neutral-900 group-hover:text-gradient transition-all">
                       {category.name}
                     </h3>
-                    <p className="text-sm text-neutral-600 leading-relaxed">
+                    <p className="text-sm text-neutral-600 leading-relaxed whitespace-pre-line">
                       {category.description || "Encuentra los mejores productos de esta categoría."}
                     </p>
                     <Link
