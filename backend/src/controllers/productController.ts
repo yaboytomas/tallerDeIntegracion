@@ -52,7 +52,12 @@ export async function getProducts(req: Request, res: Response): Promise<void> {
     }
 
     if (search) {
-      query.$text = { $search: search as string };
+      const searchRegex = new RegExp(search as string, 'i'); // Case-insensitive partial match
+      query.$or = [
+        { name: searchRegex },
+        { description: searchRegex },
+        { brand: searchRegex },
+      ];
     }
 
     // Build sort
@@ -188,9 +193,14 @@ export async function searchProducts(req: Request, res: Response): Promise<void>
 
     const limitNum = parseInt(limit as string, 10);
 
-    // Search products
+    // Search products using regex for partial matching
+    const searchRegex = new RegExp(q, 'i'); // Case-insensitive partial match
     const products = await Product.find({
-      $text: { $search: q },
+      $or: [
+        { name: searchRegex },
+        { description: searchRegex },
+        { brand: searchRegex },
+      ],
       status: 'active',
     })
       .limit(limitNum)
