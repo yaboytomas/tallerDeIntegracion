@@ -243,7 +243,7 @@ export function HomePage() {
       {/* Features Section */}
       <section className="bg-gradient-to-br from-purple-50 via-white to-pink-50 py-16">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <div className="grid gap-6 sm:grid-cols-3">
+          <div className="grid gap-6 sm:grid-cols-2 max-w-3xl mx-auto">
             <div className="card-premium group rounded-2xl border-2 border-transparent bg-white p-8 text-center shadow-2xl hover:shadow-[0_20px_60px_-15px_rgba(168,85,247,0.5)] transition-all duration-500 hover:-translate-y-2 animate-scale-in"
               style={{
                 background: `linear-gradient(white, white) padding-box, linear-gradient(135deg, #667eea, #764ba2) border-box`
@@ -257,23 +257,11 @@ export function HomePage() {
             </div>
             <div className="card-premium group rounded-2xl border-2 border-transparent bg-white p-8 text-center shadow-2xl hover:shadow-[0_20px_60px_-15px_rgba(168,85,247,0.5)] transition-all duration-500 hover:-translate-y-2 animate-scale-in"
               style={{
-                background: `linear-gradient(white, white) padding-box, linear-gradient(135deg, #f093fb, #f5576c) border-box`,
+                background: `linear-gradient(white, white) padding-box, linear-gradient(135deg, #4facfe, #00f2fe) border-box`,
                 animationDelay: '150ms'
               }}
             >
-              <div className="text-5xl mb-4 inline-block animate-float" style={{animationDelay: '300ms'}}>🔒</div>
-              <p className="text-xl font-black text-gradient mb-3">
-                Pagos Seguros
-              </p>
-              <p className="text-sm text-neutral-600 leading-relaxed">Webpay, Transferencia, Mercado Pago</p>
-            </div>
-            <div className="card-premium group rounded-2xl border-2 border-transparent bg-white p-8 text-center shadow-2xl hover:shadow-[0_20px_60px_-15px_rgba(168,85,247,0.5)] transition-all duration-500 hover:-translate-y-2 animate-scale-in"
-              style={{
-                background: `linear-gradient(white, white) padding-box, linear-gradient(135deg, #4facfe, #00f2fe) border-box`,
-                animationDelay: '300ms'
-              }}
-            >
-              <div className="text-5xl mb-4 inline-block animate-float" style={{animationDelay: '600ms'}}>💰</div>
+              <div className="text-5xl mb-4 inline-block animate-float" style={{animationDelay: '300ms'}}>💰</div>
               <p className="text-xl font-black text-gradient mb-3">
                 IVA Incluido
               </p>
@@ -295,11 +283,9 @@ export function HomePage() {
               ✨ Compra con confianza usando tus medios favoritos
             </p>
           </div>
-          <div className="mt-12 grid gap-8 sm:grid-cols-2 lg:grid-cols-4">
+          <div className="mt-12 grid gap-8 sm:grid-cols-2 max-w-2xl mx-auto">
             {[
-              { title: "Webpay Plus", description: "Aceptamos tarjetas de débito y crédito.", emoji: "💳", gradient: "#667eea, #764ba2" },
               { title: "Transferencia", description: "Pagos directos a cuenta JSP Detailing.", emoji: "🏦", gradient: "#f093fb, #f5576c" },
-              { title: "Mercado Pago", description: "Cuotas sin interés con bancos seleccionados.", emoji: "💰", gradient: "#4facfe, #00f2fe" },
               { title: "SERNAC", description: "Cumplimos normativa Ley 21.398 y SERNAC.", emoji: "✅", gradient: "#43e97b, #38f9d7" },
             ].map((item, index) => (
               <div

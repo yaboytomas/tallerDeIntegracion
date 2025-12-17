@@ -60,7 +60,7 @@ export function getFileURL(filename: string, subfolder: string = 'public'): stri
 }
 
 /**
- * Delete file
+ * Delete file 
  */
 export function deleteFile(filename: string, subfolder: string = 'public'): void {
   const filePath = path.join(uploadDir, subfolder, filename);

@@ -11,8 +11,8 @@ export function AccountPage() {
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
   const [searchParams] = useSearchParams();
-  const [activeTab, setActiveTab] = useState<"profile" | "addresses" | "orders">(
-    (searchParams.get("tab") as "profile" | "addresses" | "orders") || "profile"
+  const [activeTab, setActiveTab] = useState<"profile" | "orders">(
+    (searchParams.get("tab") as "profile" | "orders") || "profile"
   );
   const [orders, setOrders] = useState<any[]>([]);
   const [loadingOrders, setLoadingOrders] = useState(false);
@@ -129,13 +129,13 @@ export function AccountPage() {
         <div className="inline-block text-6xl mb-4 animate-float">👤</div>
         <h1 className="heading-artistic mb-4">Mi Cuenta</h1>
         <p className="mt-4 text-lg text-neutral-600">
-          ✨ Administra tu perfil, direcciones y revisa tus pedidos
+          ✨ Administra tu perfil y revisa tus pedidos
         </p>
       </header>
 
       {/* Tabs */}
       <div className="mb-8 rounded-2xl bg-white shadow-lg p-2">
-        <nav className="flex gap-2">
+        <nav className="flex gap-2 max-w-2xl mx-auto">
           <button
             onClick={() => setActiveTab("profile")}
             className={`flex-1 rounded-xl px-6 py-4 text-sm font-bold transition-all duration-300 ${
@@ -145,16 +145,6 @@ export function AccountPage() {
             }`}
           >
             👤 Perfil
-          </button>
-          <button
-            onClick={() => setActiveTab("addresses")}
-            className={`flex-1 rounded-xl px-6 py-4 text-sm font-bold transition-all duration-300 ${
-              activeTab === "addresses"
-                ? "bg-gradient-to-r from-purple-600 to-pink-600 text-white shadow-lg scale-105"
-                : "text-neutral-600 hover:bg-purple-50 hover:text-purple-900"
-            }`}
-          >
-            📍 Direcciones
           </button>
           <button
             onClick={() => setActiveTab("orders")}
@@ -263,21 +253,6 @@ export function AccountPage() {
               </button>
             </div>
           </form>
-        </div>
-      )}
-
-      {/* Addresses Tab */}
-      {activeTab === "addresses" && (
-        <div className="rounded-lg border border-neutral-200 bg-white p-6">
-          <div className="mb-4 flex items-center justify-between">
-            <h2 className="text-lg font-semibold text-neutral-900">Direcciones</h2>
-            <button className="rounded-full bg-primary px-4 py-2 text-sm font-semibold text-white hover:bg-primary-dark">
-              Agregar dirección
-            </button>
-          </div>
-          <p className="text-sm text-neutral-600">
-            Funcionalidad de direcciones próximamente disponible.
-          </p>
         </div>
       )}
 

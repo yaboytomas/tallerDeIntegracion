@@ -172,21 +172,34 @@ export function CheckoutPage() {
                   Teléfono de contacto *
                 </label>
                 <input
-                  {...register("phone", { required: "Teléfono es requerido" })}
+                  type="tel"
+                  placeholder="+56912345678 o 912345678"
+                  {...register("phone", { 
+                    required: "Teléfono es requerido",
+                    pattern: {
+                      value: /^(\+?56)?[2-9]\d{8}$/,
+                      message: "Formato inválido. Usa +56912345678 o 912345678"
+                    },
+                    validate: (value) => {
+                      // Remove spaces and dashes
+                      const cleanValue = value.replace(/[\s-]/g, '');
+                      // Check if it matches Chilean format
+                      if (!/^(\+?56)?[2-9]\d{8}$/.test(cleanValue)) {
+                        return "Número de teléfono chileno inválido";
+                      }
+                      return true;
+                    }
+                  })}
                   className="mt-1 w-full rounded-md border border-neutral-300 px-3 py-2"
                 />
                 {errors.phone && (
                   <p className="mt-1 text-xs text-red-600">{errors.phone.message}</p>
                 )}
+                <p className="mt-1 text-xs text-neutral-500">
+                  Formato: +56912345678 (móvil) o +56221234567 (fijo)
+                </p>
               </div>
             </div>
-          </div>
-
-          <div className="rounded-lg border border-neutral-200 bg-white p-6">
-            <h2 className="mb-4 text-lg font-semibold text-neutral-900">Método de Pago</h2>
-            <p className="text-sm text-neutral-600">
-              Funcionalidad de pago próximamente disponible.
-            </p>
           </div>
         </div>
 
