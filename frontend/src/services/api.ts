@@ -238,11 +238,6 @@ class ApiService {
     return response.data;
   }
 
-  async changePassword(currentPassword: string, newPassword: string) {
-    const response = await this.api.put('/user/password', { currentPassword, newPassword });
-    return response.data;
-  }
-
   // Admin endpoints
   async getDashboardStats(): Promise<DashboardStats> {
     const response = await this.api.get('/admin/dashboard');
