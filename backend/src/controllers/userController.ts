@@ -93,7 +93,11 @@ export async function changePassword(req: AuthRequest, res: Response): Promise<v
       throw new CustomError('No autorizado', 401);
     }
 
-    const { currentPassword, newPassword } = req.body;
+    let { currentPassword, newPassword } = req.body;
+
+    // Trim whitespace from passwords
+    currentPassword = currentPassword?.trim();
+    newPassword = newPassword?.trim();
 
     if (!currentPassword || !newPassword) {
       throw new CustomError('Contraseña actual y nueva contraseña son requeridas', 400);
@@ -115,8 +119,11 @@ export async function changePassword(req: AuthRequest, res: Response): Promise<v
     const { comparePassword } = await import('../utils/password');
     const isPasswordValid = await comparePassword(currentPassword, user.passwordHash);
     if (!isPasswordValid) {
+      console.log(`❌ Password change failed for user ${user.email}: Current password is incorrect`);
       throw new CustomError('Contraseña actual incorrecta', 401);
     }
+
+    console.log(`✅ Password change successful for user ${user.email}`);
 
     // Update password
     const passwordHash = await hashPassword(newPassword);

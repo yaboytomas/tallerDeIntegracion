@@ -67,7 +67,16 @@ export function CheckoutPage() {
       alert(`¡Pedido creado exitosamente! Número de orden: ${result.order.orderNumber}`);
       navigate("/cuenta?tab=orders");
     } catch (error: any) {
-      alert(error.response?.data?.error || "Error al procesar pedido");
+      const errorMessage = error.response?.data?.error || "Error al procesar pedido";
+      
+      // If products are no longer available, refresh cart and redirect
+      if (errorMessage.includes('ya no están disponibles') || errorMessage.includes('han sido eliminados')) {
+        alert(errorMessage);
+        await refreshCart(); // Reload cart to show updated items
+        navigate("/carro");
+      } else {
+        alert(errorMessage);
+      }
     } finally {
       setProcessing(false);
     }

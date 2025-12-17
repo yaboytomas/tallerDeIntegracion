@@ -31,10 +31,42 @@ export async function createOrder(req: AuthRequest, res: Response): Promise<void
         { userId: req.user.userId },
         { sessionId: req.cookies?.sessionId || '' }
       ]
-    }).populate('productId').populate('variantId').lean();
+    })
+    .populate({
+      path: 'productId',
+      select: 'name slug sku basePrice offerPrice stock status images'
+    })
+    .populate({
+      path: 'variantId',
+      select: 'name value sku priceModifier stock'
+    })
+    .lean();
 
     if (!cartItems || cartItems.length === 0) {
       throw new CustomError('El carrito está vacío', 400);
+    }
+
+    console.log(`📦 Creating order for user ${req.user.userId}, found ${cartItems.length} cart items`);
+
+    // First pass: Clean invalid items from cart
+    const invalidItems = [];
+    for (const item of cartItems) {
+      const product = item.productId as any;
+      
+      if (!product || typeof product !== 'object') {
+        console.error(`❌ Product not found for cart item ${item._id}, productId: ${item.productId}`);
+        invalidItems.push(item._id);
+      } else if (product.status !== 'active') {
+        console.error(`❌ Product ${product._id} (${product.name}) is not active, status: ${product.status}`);
+        invalidItems.push(item._id);
+      }
+    }
+
+    // Remove invalid items from cart
+    if (invalidItems.length > 0) {
+      await CartItem.deleteMany({ _id: { $in: invalidItems } });
+      console.log(`🗑️ Removed ${invalidItems.length} invalid items from cart`);
+      throw new CustomError('Algunos productos en tu carrito ya no están disponibles y han sido eliminados. Por favor revisa tu carrito e intenta nuevamente.', 400);
     }
 
     // Validate stock and calculate totals
@@ -45,14 +77,15 @@ export async function createOrder(req: AuthRequest, res: Response): Promise<void
       const product = item.productId as any;
       const variant = item.variantId as any;
 
-      // Validate product exists and is active
-      if (!product) {
-        throw new CustomError('Uno o más productos en el carrito ya no están disponibles. Por favor actualiza tu carrito.', 400);
-      }
-
-      if (product.status !== 'active') {
-        throw new CustomError(`El producto "${product.name}" ya no está disponible`, 400);
-      }
+      // Log detailed info for debugging
+      console.log(`📦 Processing cart item:`, {
+        cartItemId: item._id,
+        productId: product._id,
+        productName: product.name,
+        productStatus: product.status,
+        quantity: item.quantity,
+        stock: variant ? variant.stock : product.stock,
+      });
 
       // Check stock
       const availableStock = variant ? variant.stock : product.stock;
