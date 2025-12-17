@@ -84,13 +84,6 @@
     scroll-behavior: smooth;
   }
   
-  /* Artistic selection */
-  ::selection {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    color: white;
-    text-shadow: 0 0 8px rgba(0, 0, 0, 0.3);
-  }
-  
   /* Prevent layout shift for images */
   img {
     aspect-ratio: attr(width) / attr(height);
