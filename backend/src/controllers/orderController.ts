@@ -281,3 +281,88 @@ export async function cancelOrder(req: AuthRequest, res: Response): Promise<void
     }
   }
 }
+
+/**
+ * Admin: Get order by ID (any order)
+ */
+export async function getOrderByIdAdmin(req: AuthRequest, res: Response): Promise<void> {
+  try {
+    if (!req.user) {
+      throw new CustomError('Usuario no autenticado', 401);
+    }
+
+    const { id } = req.params;
+
+    const order = await Order.findById(id)
+      .populate('userId', 'firstName lastName email phone')
+      .populate('items.productId', 'name slug images sku')
+      .populate('items.variantId', 'name value sku')
+      .lean();
+
+    if (!order) {
+      throw new CustomError('Pedido no encontrado', 404);
+    }
+
+    res.json(order);
+  } catch (error: any) {
+    if (error instanceof CustomError) {
+      res.status(error.statusCode).json({ error: error.message });
+    } else {
+      console.error('Get order by id (admin) error:', error);
+      res.status(500).json({ error: 'Error al obtener pedido' });
+    }
+  }
+}
+
+/**
+ * Admin: Update order status
+ */
+export async function updateOrderStatus(req: AuthRequest, res: Response): Promise<void> {
+  try {
+    if (!req.user) {
+      throw new CustomError('Usuario no autenticado', 401);
+    }
+
+    const { id } = req.params;
+    const { status } = req.body;
+
+    const validStatuses = ['pending', 'processing', 'shipped', 'delivered', 'cancelled'];
+    if (!validStatuses.includes(status)) {
+      throw new CustomError('Estado inválido', 400);
+    }
+
+    const order = await Order.findById(id);
+
+    if (!order) {
+      throw new CustomError('Pedido no encontrado', 404);
+    }
+
+    const previousStatus = order.status;
+    order.status = status;
+    await order.save();
+
+    // If changing from non-cancelled to cancelled, restore stock
+    if (previousStatus !== 'cancelled' && status === 'cancelled') {
+      for (const item of order.items) {
+        if (item.variantId) {
+          await ProductVariant.findByIdAndUpdate(item.variantId, {
+            $inc: { stock: item.quantity }
+          });
+        } else {
+          await Product.findByIdAndUpdate(item.productId, {
+            $inc: { stock: item.quantity }
+          });
+        }
+      }
+    }
+
+    res.json({ message: 'Estado del pedido actualizado exitosamente', order });
+  } catch (error: any) {
+    if (error instanceof CustomError) {
+      res.status(error.statusCode).json({ error: error.message });
+    } else {
+      console.error('Update order status error:', error);
+      res.status(500).json({ error: 'Error al actualizar estado del pedido' });
+    }
+  }
+}

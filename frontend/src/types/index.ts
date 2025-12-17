@@ -113,6 +113,56 @@ export interface ContentPage {
   updatedAt: string;
 }
 
+// Order types
+export interface Order {
+  _id: string;
+  userId?: {
+    _id: string;
+    email: string;
+    firstName: string;
+    lastName: string;
+    phone: string;
+  };
+  orderNumber: string;
+  items: OrderItem[];
+  subtotal: number;
+  iva: number;
+  shipping: number;
+  total: number;
+  shippingAddress: {
+    region: string;
+    comuna: string;
+    street: string;
+    number: string;
+    apartment?: string;
+    reference?: string;
+    phone: string;
+  };
+  status: 'pending' | 'processing' | 'shipped' | 'delivered' | 'cancelled';
+  paymentMethod?: string;
+  paymentStatus: 'pending' | 'paid' | 'failed' | 'refunded';
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface OrderItem {
+  productId: {
+    _id: string;
+    name: string;
+    sku: string;
+    images: string[];
+  };
+  variantId?: {
+    _id: string;
+    name: string;
+    value: string;
+  };
+  quantity: number;
+  price: number;
+  name?: string;
+  sku?: string;
+}
+
 // Dashboard Stats
 export interface DashboardStats {
   totalProducts: number;

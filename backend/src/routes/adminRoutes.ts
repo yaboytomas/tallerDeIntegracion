@@ -1,6 +1,7 @@
 import { Router } from 'express';
 import * as adminController from '../controllers/adminController';
 import * as adminUserController from '../controllers/adminUserController';
+import * as orderController from '../controllers/orderController';
 import { authenticate, requireAdmin } from '../middleware/auth';
 import { uploadProduct, uploadCategory, uploadBanner } from '../services/cloudinaryUpload';
 
@@ -42,6 +43,10 @@ router.get('/content', adminController.getContentPages);
 router.get('/content/:slug', adminController.getContentPage);
 router.post('/content', adminController.createOrUpdateContentPage);
 router.put('/content/:slug', adminController.createOrUpdateContentPage);
+
+// Orders
+router.get('/orders/:id', orderController.getOrderByIdAdmin);
+router.put('/orders/:id/status', orderController.updateOrderStatus);
 
 export default router;
 

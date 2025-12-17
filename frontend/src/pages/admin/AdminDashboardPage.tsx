@@ -2,12 +2,14 @@ import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { api } from '../../services/api';
 import { useAuth } from '../../context/AuthContext';
+import { OrderDetailModal } from './OrderDetailModal';
 import type { DashboardStats } from '../../types';
 
 export function AdminDashboardPage() {
   const { isAdmin } = useAuth();
   const [stats, setStats] = useState<DashboardStats | null>(null);
   const [loading, setLoading] = useState(true);
+  const [selectedOrderId, setSelectedOrderId] = useState<string | null>(null);
 
   useEffect(() => {
     if (isAdmin) {
@@ -224,23 +226,45 @@ export function AdminDashboardPage() {
           </div>
           <div className="divide-y divide-neutral-200">
             {stats.recentOrders.map((order: any) => (
-              <div key={order._id} className="px-6 py-4">
+              <button
+                key={order._id}
+                onClick={() => setSelectedOrderId(order._id)}
+                className="w-full px-6 py-4 transition-all hover:bg-gradient-to-r hover:from-purple-50 hover:to-pink-50 text-left group"
+              >
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="font-medium text-neutral-900">Pedido #{order.orderNumber}</p>
+                    <p className="font-bold text-neutral-900 group-hover:text-gradient transition-all">
+                      Pedido #{order.orderNumber}
+                    </p>
                     <p className="text-sm text-neutral-600">
                       {order.userId?.firstName} {order.userId?.lastName}
                     </p>
                   </div>
-                  <div className="text-right">
-                    <p className="font-medium text-neutral-900">${order.total.toLocaleString('es-CL')}</p>
-                    <p className="text-sm text-neutral-600">{order.status}</p>
+                  <div className="text-right flex items-center gap-3">
+                    <div>
+                      <p className="font-bold text-neutral-900">${order.total.toLocaleString('es-CL')}</p>
+                      <p className="text-sm text-neutral-600 capitalize">{order.status}</p>
+                    </div>
+                    <span className="text-purple-600 opacity-0 group-hover:opacity-100 transition-opacity text-xl">
+                      →
+                    </span>
                   </div>
                 </div>
-              </div>
+              </button>
             ))}
           </div>
         </div>
+      )}
+
+      {/* Order Detail Modal */}
+      {selectedOrderId && (
+        <OrderDetailModal
+          orderId={selectedOrderId}
+          onClose={() => setSelectedOrderId(null)}
+          onStatusUpdated={() => {
+            loadStats(); // Reload stats to reflect updated status
+          }}
+        />
       )}
     </div>
   );

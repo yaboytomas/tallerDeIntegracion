@@ -396,6 +396,17 @@ class ApiService {
     const response = await this.api.delete(`/admin/users/${userId}`);
     return response.data;
   }
+
+  // Admin Orders
+  async getOrderById(orderId: string) {
+    const response = await this.api.get(`/admin/orders/${orderId}`);
+    return response.data;
+  }
+
+  async updateOrderStatus(orderId: string, status: string) {
+    const response = await this.api.put(`/admin/orders/${orderId}/status`, { status });
+    return response.data;
+  }
 }
 
 export const api = new ApiService();
