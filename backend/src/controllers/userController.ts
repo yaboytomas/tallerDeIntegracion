@@ -93,11 +93,7 @@ export async function changePassword(req: AuthRequest, res: Response): Promise<v
       throw new CustomError('No autorizado', 401);
     }
 
-    let { currentPassword, newPassword } = req.body;
-
-    // Trim whitespace from passwords
-    currentPassword = currentPassword?.trim();
-    newPassword = newPassword?.trim();
+    const { currentPassword, newPassword } = req.body;
 
     if (!currentPassword || !newPassword) {
       throw new CustomError('Contraseña actual y nueva contraseña son requeridas', 400);

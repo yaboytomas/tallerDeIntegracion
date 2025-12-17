@@ -4,6 +4,7 @@ import { api } from "../../services/api";
 import { useForm } from "react-hook-form";
 import { formatCLP } from "../../utils/currency";
 import { useSearchParams } from "react-router-dom";
+import { UserOrderDetailModal } from "./UserOrderDetailModal";
 
 export function AccountPage() {
   const { user, isAuthenticated } = useAuth();
@@ -18,6 +19,7 @@ export function AccountPage() {
   const [loadingOrders, setLoadingOrders] = useState(false);
   const [passwordMessage, setPasswordMessage] = useState<string | null>(null);
   const [changingPassword, setChangingPassword] = useState(false);
+  const [selectedOrderId, setSelectedOrderId] = useState<string | null>(null);
 
   const {
     register,
@@ -90,16 +92,16 @@ export function AccountPage() {
   };
 
   const handleCancelOrder = async (orderId: string) => {
-    if (!confirm("¿Estás seguro de que quieres cancelar este pedido?")) {
+    if (!confirm("¿Estás seguro de que quieres cancelar este pedido? Esta acción no se puede deshacer.")) {
       return;
     }
 
     try {
       await api.cancelOrder(orderId);
-      setMessage("Pedido cancelado exitosamente");
+      alert("✅ Pedido cancelado exitosamente. El stock ha sido restaurado.");
       loadOrders(); // Reload orders
     } catch (error: any) {
-      setMessage(error.response?.data?.error || "Error al cancelar pedido");
+      alert(error.response?.data?.error || "❌ Error al cancelar pedido");
     }
   };
 
@@ -395,13 +397,16 @@ export function AccountPage() {
                     {order.status === "pending" && (
                       <button
                         onClick={() => handleCancelOrder(order._id)}
-                        className="rounded-md bg-red-600 px-3 py-2 text-sm font-medium text-white hover:bg-red-700"
+                        className="rounded-md bg-red-600 px-3 py-2 text-sm font-medium text-white hover:bg-red-700 transition-all hover:scale-105"
                       >
-                        Cancelar pedido
+                        ❌ Cancelar pedido
                       </button>
                     )}
-                    <button className="rounded-md border border-neutral-300 bg-white px-3 py-2 text-sm font-medium text-neutral-700 hover:bg-neutral-50">
-                      Ver detalles
+                    <button 
+                      onClick={() => setSelectedOrderId(order._id)}
+                      className="rounded-md border border-neutral-300 bg-white px-3 py-2 text-sm font-medium text-neutral-700 hover:bg-neutral-50 transition-all hover:scale-105"
+                    >
+                      👁️ Ver detalles
                     </button>
                   </div>
                 </div>
@@ -526,6 +531,14 @@ export function AccountPage() {
             </div>
           </form>
         </div>
+      )}
+
+      {/* Order Detail Modal */}
+      {selectedOrderId && (
+        <UserOrderDetailModal
+          orderId={selectedOrderId}
+          onClose={() => setSelectedOrderId(null)}
+        />
       )}
     </section>
   );
